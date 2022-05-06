@@ -234,7 +234,7 @@ public class TaskAssignmentWarehouseOnline {
 	    ///////////////////////// //////////////////////////////
 		//Solve the problem to find some feasible solution
 		
-		double alpha = 1.0;
+		double alpha = 0.8;
 		double [][][]optimalAllocation = {{{0.0},{0.0},{0.0},{1.0},{0.0},{0.0},{0.0}},
 				{{0.0},{0.0},{0.0},{0.0},{0.0},{0.0},{1.0}},
 				{{0.0},{1.0},{0.0},{0.0},{0.0},{0.0},{0.0}},
