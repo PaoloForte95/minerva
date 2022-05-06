@@ -862,6 +862,20 @@ public abstract class AbstractOptimizationProblem {
 	}
 	
 	
+	
+	
+	/**
+	 * Evaluate the machine productivity for a given task
+	 * @param robot -> The i-th Robot
+	 * @param task -> The j-th Task
+	 * @param pathID -> The s-th path
+	 * @param assignmentMatrix -> The Assignment Matrix related to a solution of the optimization problem
+	 * @return The productivity value associated to the given machine
+	 */
+	public abstract double evaluateMachineProductivity (int robotID ,int taskID,int pathID,double pathDelay);
+	
+	
+	
 	/**
 	 * Evaluate the interference cost for the specific robot (robotID) to perform the  specific task (taskID) following the specific path (pathID)
 	 * @param robotID -> ID of the robot that perform the task
