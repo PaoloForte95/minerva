@@ -782,10 +782,6 @@ public class OptimizationProblem extends AbstractOptimizationProblem{
 		return delay;
 		}
 	
-	public double evaluateMachineProductivity(int robotID ,int taskID,int pathID,double pathDelay) {
-		return 0.0;
-	}
-	
 	public double evaluateInterferenceCost(int robotID ,int taskID,int pathID,double [][][] assignmentMatrix) {
 		
 		double pathDelayCost = evaluatePathDelay(robotID,taskID,pathID,assignmentMatrix)/sumArrivalTime;

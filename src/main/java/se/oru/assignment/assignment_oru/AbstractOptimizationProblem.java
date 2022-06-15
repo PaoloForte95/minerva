@@ -51,7 +51,7 @@ public abstract class AbstractOptimizationProblem {
 
 		public static String TITLE = "assignment_oru - Robot-agnostic online task assignment for multiple robots";
 		public static String COPYRIGHT = "Copyright \u00a9 2020-" + Calendar.getInstance().get(Calendar.YEAR) + " Paolo Forte";
-		public static String[] CONTRIBUTORS = {"Anna Mannucci", "Federico Pecora"};
+		public static String[] CONTRIBUTORS = {"Paolo Forte", "Anna Mannucci", "Federico Pecora"};
 	
 		//null -> public (GPL3) license
 		public static String LICENSE = null;
@@ -860,19 +860,6 @@ public abstract class AbstractOptimizationProblem {
 		}
 		return pathLength;
 	}
-	
-	
-	
-	
-	/**
-	 * Evaluate the machine productivity for a given task
-	 * @param robot -> The i-th Robot
-	 * @param task -> The j-th Task
-	 * @param pathID -> The s-th path
-	 * @param assignmentMatrix -> The Assignment Matrix related to a solution of the optimization problem
-	 * @return The productivity value associated to the given machine
-	 */
-	public abstract double evaluateMachineProductivity (int robotID ,int taskID,int pathID,double pathDelay);
 	
 	
 	
