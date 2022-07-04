@@ -14,12 +14,9 @@ import com.google.ortools.linearsolver.*;
  */
 
 public abstract class AbstractOptimizationAlgorithm  {
-	
 
 	protected double timeOut = Double.POSITIVE_INFINITY;
-	
-	
-	
+
 	/**
 	 * Set the timeOut for the optimization algorithm (in minutes). The algorithm will search a solution until this time.
 	 * Use number from 0.1 (10 seconds) to 0.6 (60 seconds) for seconds
@@ -36,26 +33,26 @@ public abstract class AbstractOptimizationAlgorithm  {
 		else {
 			this.timeOut = minutes*60*1000;
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Get the timeout for this optimization algorithm.
 	 * @return The timeout set in minutes. 
 	 */
-	
+
 	public double getTimeout() {
 		return this.timeOut;
 	}
-	
-	
-	
+
+
 	/** 
 	 * Solve the optimization problem given as input
 	 * @param oap -> An optimization problem defined with {@link #buildOptimizationProblem}
 	 * @return The optimal Assignment
 	 */	
-	public abstract double [][][] solveOptimizationProblem(AbstractOptimizationProblem oap);	
-	}
+	public abstract double [][][] solveOptimizationProblem(AbstractOptimizationProblem oap);
+
+}
 

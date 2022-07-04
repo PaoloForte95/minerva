@@ -1,5 +1,6 @@
 package se.oru.assignment.assignment_oru;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -1212,7 +1213,6 @@ public class OptimizationProblem extends AbstractOptimizationProblem{
 			public void run() {
 				while (true) {
 					System.out.println("Thread Running");
-					
 					if (!taskQueue.isEmpty() && coordinator.getIdleRobots().size() > 2) {
 						optimizationModel = createOptimizationProblem();
 						double [][][] assignmentMatrix = findOptimalAssignment(optimizationSolver);

@@ -13,10 +13,8 @@ import com.google.ortools.linearsolver.*;
  *
  */
 
-public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
-	 
-	
-	
+public class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
+
 	/** 
 	 * Solve the optimization problem given as input using a systematic algorithm. The objective function is defined as alpha*B + (1-alpha)*F.
 	 * The solver first finds the optimal solution considering only B function and then
@@ -27,32 +25,32 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 
 	 * @return An Optimal Assignment that minimize the objective function
 	 */	
-	
+
 	public double [][][] solveOptimizationProblem(AbstractOptimizationProblem oap){
 		MPSolver optimizationModel = oap.getModel();
 		ArrayList<Integer> IDsAllRobots = oap.getRobotsIDs();
 		ArrayList<Integer> IDsAllTasks = oap.getTasksIDs();
-		
+
 		int numRobotAug = IDsAllRobots.size();
 		int numTaskAug = IDsAllTasks.size();
 		int maxNumPaths = oap.getmaxNumberOfAlternativePaths();
 		double [][][] costValuesMatrix = oap.getInterferenceFreeCostMatrix();
-		
+
 		double linearWeight = oap.getLinearWeight();
-	
-		
+
+
 		long timeProva2= 0;
 		long timeProvaFinal2= 0;
-		
+
 		//Initialize the optimal assignment and the cost associated to it
 		double [][][] optimalAssignmentMatrix = new double[numRobotAug][numTaskAug][maxNumPaths];
 		double objectiveOptimalValue = 100000000;
 		double costBOptimal = 0;
 		double costFOptimal = 0;
-		
+
 		//Solve the optimization problem
-		
-		
+
+
 		MPSolver.ResultStatus resultStatus = optimizationModel.solve();
 		long timeOffsetInitial = Calendar.getInstance().getTimeInMillis();
 		long timeOffset = 0;
@@ -80,7 +78,7 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 					int j = IDsAllTasks.indexOf(taskID);
 					for(int s = 0; s < maxNumPaths; s++) {
 						if ( AssignmentMatrix[i][j][s] > 0) {
-							
+
 							if (linearWeight != 1) {
 								//Evaluate cost of F function only if alpha is not equal to 1
 								double costB = optimizationModel.objective().getCoefficient(optimizationModel.variables()[i*numTaskAug*maxNumPaths+j*maxNumPaths+s]);
@@ -88,25 +86,25 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 								costF = oap.evaluateInterferenceCost(robotID,taskID,s,AssignmentMatrix);
 								costofAssignment = linearWeight*costB + (1-linearWeight)*costF + costofAssignment ;
 								costofAssignmentForConstraint = costValuesMatrix[i][j][s] + costF + costofAssignmentForConstraint;
-								
+
 								costFFake3 = (1-linearWeight)*costF + costFFake3;
 								costBFake3 = linearWeight*costB + costBFake3;
-								
-								
+
+
 							}
 							else {
 								double costB = optimizationModel.objective().getCoefficient(optimizationModel.variables()[i*numTaskAug*maxNumPaths+j*maxNumPaths+s]);
 								costofAssignment = Math.pow(linearWeight*costB, 2) + costofAssignment ;
 								costofAssignmentForConstraint = costValuesMatrix[i][j][s]  + costofAssignmentForConstraint;
 							}
-							
+
 
 						}
 					}
-									
+
 				}		
 			}		
-			
+
 			//Compare actual solution and optimal solution finds so far
 			if (costofAssignment < objectiveOptimalValue && resultStatus != MPSolver.ResultStatus.INFEASIBLE) {
 				objectiveOptimalValue = costofAssignment;
@@ -114,14 +112,14 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 					for(int j = 0 ; j <AssignmentMatrix[0].length; j++) {
 						for(int s = 0; s < maxNumPaths; s++) {
 							optimalAssignmentMatrix[i][j][s] = AssignmentMatrix[i][j][s];
-	
+
 						}
 					}
 				}
 				costBOptimal = optimizationModel.objective().value();
 				costFOptimal =  costofAssignmentForConstraint- costBOptimal;
 			}
-			
+
 			//Add the constraint on cost for next solution
 			//add +0,005 in order for tolerance
 			optimizationModel = oap.constraintOnCostSolution(optimizationModel,costofAssignmentForConstraint);
@@ -134,15 +132,15 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 
 		long timeFinal = Calendar.getInstance().getTimeInMillis();
 		//long timeRequired = timeFinal- initialTime;
-		
+
 		//Return the Optimal Assignment Matrix 
 		//String ppMatrixOptimal = "Test"+b+"/Sys/MatrixOptimal-T" + a +".txt";
 		//saveMatrixinFile(ppMatrixOptimal,optimalAssignmentMatrix);
 		return  optimalAssignmentMatrix;    
 	}
 
-	
-		
+
+
 	/** 
 	 * Solve the optimization problem given as input considering both B and F Functions. The objective function is defined as sum(c_ij * x_ij) for (i = 1...n)(j = 1...m).
 	 * with n = number of robot and m = number of tasks. The solver first finds the optimal solution considering only B function and then
@@ -154,19 +152,19 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 
 	 * @return An Optimal Assignment that minimize the objective function
 	 */	
-	public double [][][] solveOptimizationProblem2(MPSolver optimizationProblem,OptimizationProblem oap){
-		
+	public double [][][] solveOptimizationProblem2(MPSolver optimizationProblem, OptimizationProblem oap){
+
 
 		ArrayList<Integer> IDsAllRobots = oap.getRobotsIDs();
 		ArrayList<Integer> IDsAllTasks = oap.getTasksIDs();
-		
+
 		int numRobotAug = IDsAllRobots.size();
 		int numTaskAug = IDsAllTasks.size();
 		int maxNumPaths = oap.getmaxNumberOfAlternativePaths();
 		double [][][] costValuesMatrix = oap.getInterferenceFreeCostMatrix();
-		
+
 		double linearWeight = oap.getLinearWeight();
-		
+
 		long timeToFindASolution = 0;
 		//Initialize the optimal assignment and the cost associated to it
 		double [][][] optimalAssignmentMatrix = new double[numRobotAug][numTaskAug][maxNumPaths];
@@ -174,7 +172,7 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 		double objectiveOptimalValue = 100000000;
 		double costBOptimal = 0;
 		double costFOptimal = 0;
-		
+
 		//Solve the optimization problem	
 		MPSolver.ResultStatus resultStatus = optimizationProblem.solve();
 		long timeOffsetInitial = Calendar.getInstance().getTimeInMillis();
@@ -197,7 +195,7 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 					int j = IDsAllTasks.indexOf(taskID);
 					for(int s = 0; s < maxNumPaths; s++) {
 						if ( AssignmentMatrix[i][j][s] > 0) {
-							
+
 							if (linearWeight != 1) {
 								//Evaluate cost of F function only if alpha is not equal to 1
 								double costB = optimizationProblem.objective().getCoefficient(optimizationProblem.variables()[i*numTaskAug*maxNumPaths+j*maxNumPaths+s]);
@@ -205,7 +203,7 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 								costF = oap.evaluateInterferenceCost(robotID,taskID,s,AssignmentMatrix);
 								costofAssignment = linearWeight*costB + (1-linearWeight)*costF + costofAssignment ;
 								costofAssignmentForConstraint = costValuesMatrix[i][j][s] + costF + costofAssignmentForConstraint;
-								
+
 								costFFake3 = (1-linearWeight)*costF + costFFake3;
 								costBFake3 = linearWeight*costB + costBFake3;	
 								optimalAssignmentCostMatrix[i][j][s] = costFFake3 + costBFake3;
@@ -216,14 +214,14 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 								costofAssignmentForConstraint = costValuesMatrix[i][j][s]  + costofAssignmentForConstraint;
 								optimalAssignmentCostMatrix[i][j][s] = costofAssignment;
 							}
-							
+
 
 						}
 					}
-									
+
 				}		
 			}		
-			
+
 			//Compare actual solution and optimal solution finds so far
 			if (costofAssignment < objectiveOptimalValue && resultStatus != MPSolver.ResultStatus.INFEASIBLE) {
 				objectiveOptimalValue = costofAssignment;
@@ -231,14 +229,14 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 					for(int j = 0 ; j <AssignmentMatrix[0].length; j++) {
 						for(int s = 0; s < maxNumPaths; s++) {
 							optimalAssignmentMatrix[i][j][s] = AssignmentMatrix[i][j][s];
-	
+
 						}
 					}
 				}
 				costBOptimal = optimizationProblem.objective().value();
 				costFOptimal =  costofAssignmentForConstraint- costBOptimal;
 			}
-			
+
 			//Add the constraint on cost for next solution
 			//add +0,005 in order for tolerance
 			optimizationProblem = oap.constraintOnCostSolution(optimizationProblem,costofAssignmentForConstraint);
@@ -248,22 +246,14 @@ public class SystematicAlgorithm extends AbstractOptimizationAlgorithm{
 			timeOffset = timeOffsetFinal - timeOffsetInitial;
 			cont +=1;			
 		}
-		
+
 		//Return the Optimal Assignment Matrix in a txt file 
 		//String ppMatrixOptimal = "OptimalAssignment.txt";
 		//writeMatrix(ppMatrixOptimal,optimalAssignmentMatrix);
-		
+
 		return  optimalAssignmentMatrix;    
 	}
 
 
-
-	
-
-
-
-
-	
-	
-	}
+}
 

@@ -20,6 +20,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import com.vividsolutions.jts.geom.Polygon;
 
+import cern.colt.Arrays;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
 import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
@@ -120,7 +121,13 @@ public abstract class AbstractOptimizationProblem {
 		//Visualization parameters
 		protected TaskFleetVisualization viz = null;
 		
-		
+		//Parameters for time analysis
+		protected long timeRequiretoEvaluatePaths;
+		protected long timeRequiretofillInPall;
+		protected long timeRequiretoComputeCriticalSection;
+		protected long timeRequiretoComputePathsDelay;
+		protected long initialTime;
+
 		
 		/**
 		 * The default footprint used for robots if none is specified.
@@ -967,6 +974,64 @@ public abstract class AbstractOptimizationProblem {
 	
 
 	/**
+	 * Create the optimization problem with part of the Objective Function (Function B). Define a decision variable X_ijp_{ijs} as a binary variable in which i indicate
+	 * the robot id, j the tasks, and p_{ijs} is the s-th path for the robot i-th to reach the target position of task j. The problem is build as an ST-ST-IA problem, i.e.:
+	 * 1) Each Task can be assign only to a robot;
+	 * 2) Each Robot can perform only a task at time.
+	 * The objective function is defined as alpha*B + (1-alpha)*F 
+	 * where B includes the cost related to single robot ({@link #evaluateBFunction}), while F ({@link #evaluateInterferenceCost}) includes all costs related to interference
+	 * @return A constrained optimization problem
+	 */
+	protected MPSolver createOptimizationProblem() {
+		this.initialTime = 	Calendar.getInstance().getTimeInMillis();
+		//Perform a check in order to avoid blocking
+		//checkOnBlocking(tec);
+		//Take the number of tasks
+		numberTasks = taskQueue.size();
+		//Get free robots and their IDs
+		numberRobots = coordinator.getIdleRobots().size();
+		IDsIdleRobots = coordinator.getIdleRobots();
+		//Evaluate dummy robot and dummy task
+		checkOnBlocking();
+		dummyRobotorTask();
+		initializeRobotsIDs();
+		initializeTasksIDs();
+		double[][][] BFunction = evaluateBFunction();
+		
+		
+		
+		//Build the optimization problem
+		MPSolver optimizationProblem = buildOptimizationProblem();
+		
+		
+		//Modify the coefficients of the objective function
+		MPVariable [][][] decisionVariable = tranformArray(optimizationProblem); 
+	    /////////////////////////////////
+	    //START OBJECTIVE FUNCTION		
+	    MPObjective objective = optimizationProblem.objective();
+    	 for (int i = 0; i < numRobotAug; i++) {
+			 for (int j = 0; j < numTaskAug; j++) {
+				 for(int s = 0; s < alternativePaths; s++) {
+					 double singleRobotCost  =  BFunction[i][j][s];
+					 if ( singleRobotCost != Double.POSITIVE_INFINITY) {
+						 //Set the coefficient of the objective function with the normalized path length
+						 objective.setCoefficient(decisionVariable[i][j][s], singleRobotCost); 
+					 }else { // if the path does not exists or the robot type is different from the task type 
+						//the path to reach the task not exists
+						//the decision variable is set to 0 -> this allocation is not valid
+						MPConstraint c3 = optimizationProblem.makeConstraint(0,0);
+						c3.setCoefficient(decisionVariable[i][j][s],1); 
+					 }
+				 }
+			 }			 
+		 }
+		//Define the problem as a minimization problem
+		objective.setMinimization();
+		//END OBJECTIVE FUNCTION
+		return optimizationProblem;	
+	}
+
+	/**
 	 * Build the optimization problem. User need to define a decision variable as a binary variable and the constraints associated to the problem.
 	 * @return A constrained optimization problem
 	 */
@@ -1109,6 +1174,64 @@ public abstract class AbstractOptimizationProblem {
 	}
 	
 	
+//	protected void setupInferenceCallback() {
+//		
+//		Thread TaskAssignmentThread = new Thread("Task Assignment") {
+//			private long threadLastUpdate = Calendar.getInstance().getTimeInMillis();
+//			@Override
+//			
+//			public void run() {
+//				while (true) {
+//					System.out.println("Thread Running");
+//					
+//					if (!taskQueue.isEmpty() && coordinator.getIdleRobots().size() > 2) {
+//						optimizationModel = buildOptimizationProblem();
+//						double [][][] assignmentMatrix = findOptimalAssignment(optimizationSolver);
+//						System.out.println(Arrays.toString(assignmentMatrix));
+//						for (int i = 0; i < assignmentMatrix.length; i++) {
+//							int robotID = robotsIDs.get((i));
+//							for (int j = 0; j < assignmentMatrix[0].length; j++) {
+//								int taskID = tasksIDs.get((j));
+//								for(int s = 0; s < alternativePaths; s++) {
+//									System.out.println("x"+"["+(i+1)+","+(j+1)+","+(s+1)+"]"+" is "+ assignmentMatrix[i][j][s]);
+//									if (assignmentMatrix[i][j][s] == 1) {
+//										System.out.println("Robot " + robotID +" is assigned to Task "+ taskID +" throw Path " + (s+1));
+//									}
+//								}
+//									
+//							} 
+//						}
+//						allocateTaskstoRobots(assignmentMatrix);
+//						System.out.print("Task to be completed "+ taskQueue.size());
+//						optimizationModel.clear();
+//						if(taskPosponedQueue.size() !=0) {
+//							taskQueue.addAll(taskPosponedQueue);
+//							taskPosponedQueue.removeAll(taskPosponedQueue);
+//						}
+//					}
+//					
+//					//Sleep a little...
+//					if (CONTROL_PERIOD_TASK > 0) {
+//						try { 
+//							System.out.println("Thread Sleeping");
+//							Thread.sleep(CONTROL_PERIOD_TASK); } //Thread.sleep(Math.max(0, CONTROL_PERIOD-Calendar.getInstance().getTimeInMillis()+threadLastUpdate)); }
+//						catch (InterruptedException e) { e.printStackTrace(); }
+//					}
+//
+//					long threadCurrentUpdate = Calendar.getInstance().getTimeInMillis();
+//					EFFECTIVE_CONTROL_PERIOD_TASK = (int)(threadCurrentUpdate-threadLastUpdate);
+//					threadLastUpdate = threadCurrentUpdate;
+//					
+//					if (cb != null) cb.performOperation();
+//
+//				}
+//			}
+//		};
+//		TaskAssignmentThread.setPriority(Thread.MAX_PRIORITY);
+//		TaskAssignmentThread.start();
+//		
+//	}
+	
 	protected void setupInferenceCallback() {
 		
 		Thread TaskAssignmentThread = new Thread("Task Assignment") {
@@ -1118,9 +1241,8 @@ public abstract class AbstractOptimizationProblem {
 			public void run() {
 				while (true) {
 					System.out.println("Thread Running");
-					
 					if (!taskQueue.isEmpty() && coordinator.getIdleRobots().size() > 2) {
-						optimizationModel = buildOptimizationProblem();
+						optimizationModel = createOptimizationProblem();
 						double [][][] assignmentMatrix = findOptimalAssignment(optimizationSolver);
 						for (int i = 0; i < assignmentMatrix.length; i++) {
 							int robotID = robotsIDs.get((i));
@@ -1129,7 +1251,7 @@ public abstract class AbstractOptimizationProblem {
 								for(int s = 0; s < alternativePaths; s++) {
 									System.out.println("x"+"["+(i+1)+","+(j+1)+","+(s+1)+"]"+" is "+ assignmentMatrix[i][j][s]);
 									if (assignmentMatrix[i][j][s] == 1) {
-										System.out.println("Robot " + robotID +" is assigned to Task "+ taskID +" throw Path " + (s+1));
+										System.out.println("Robot " + robotID +" is assigned to Task "+ taskID +" through Path " + (s+1));
 									}
 								}
 									
@@ -1162,8 +1284,7 @@ public abstract class AbstractOptimizationProblem {
 			}
 		};
 		TaskAssignmentThread.setPriority(Thread.MAX_PRIORITY);
-		TaskAssignmentThread.start();
-		
+		TaskAssignmentThread.start();	
 	}
 	
 	
