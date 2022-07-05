@@ -1255,6 +1255,12 @@ public class OptimizationProblem extends AbstractOptimizationProblem{
 		TaskAssignmentThread.start();
 		
 	}
+
+	@Override
+	public double evaluateMachineProductivity(int robotID, int taskID, int pathID, double pathDelay) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	
 	

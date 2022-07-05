@@ -1292,8 +1292,9 @@ public abstract class AbstractOptimizationProblem {
 		}
 		System.out.println();
 	}
-	
-	
+
+
+	public abstract double evaluateMachineProductivity(int robotID, int taskID, int pathID, double pathDelay);
 	
 	
 	}
