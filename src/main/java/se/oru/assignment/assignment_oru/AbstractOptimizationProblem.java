@@ -854,7 +854,7 @@ public abstract class AbstractOptimizationProblem {
 				//Add the path to the FleetMaster Interface -> so it can be considered as an obstacle from 
 				//the motion planner
 				
-				System.out.println("Robot " +robotID +" taskID "+ taskID +" throw Path " + dummyTask[dummyTask.length-1].getX() + " " + dummyTask[dummyTask.length-1].getY() + " " + dummyTask[dummyTask.length-1].getTheta());
+				System.out.println("Robot " +robotID +" taskID "+ taskID +" through Path " + dummyTask[dummyTask.length-1].getX() + " " + dummyTask[dummyTask.length-1].getY() + " " + dummyTask[dummyTask.length-1].getTheta());
 				
 				//addPath(robotID, dummyTask.hashCode(), dummyTask, null, coordinator.getFootprint(robotID));
 				//Save the path to Dummy Task 
@@ -1100,7 +1100,7 @@ public abstract class AbstractOptimizationProblem {
 								 viz.displayTask(taskQueue.get(j).getStartPose(), taskQueue.get(j).getGoalPose(),taskID, "red");
 								 //tec.addMissions(new Mission(IDsIdleRobots[i],pss));
 								 metaCSPLogger.info("Task # "+ taskID + " is Assigned");
-								 metaCSPLogger.info("Robot " + robotID +" is assigned to Task "+ taskID +" throw Path " + (s+1));
+								 metaCSPLogger.info("Robot " + robotID +" is assigned to Task "+ taskID +" through Path " + (s+1));
 								 //tec.setTaskAssigned(robotID,taskID);
 								 coordinator.addMissions(robotMissions);
 							 }else {
