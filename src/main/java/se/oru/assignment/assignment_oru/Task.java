@@ -10,13 +10,16 @@ import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 
 import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.util.Missions;
 
 
 public class Task {
 	
 	protected int taskID;
-	protected PoseSteering startLocation;
-	protected PoseSteering goalLocation;
+	protected String startLocation;
+	protected String goalLocation;
+	protected PoseSteering startPoseSteering;
+	protected PoseSteering goalPoseSteering;
 	protected int decidedRobotID = -1;
 	protected List<PoseSteering[]> paths = null;
 	protected Set<ROBOT_TYPE> robotTypes = null;
@@ -59,21 +62,27 @@ public class Task {
 	 * robot can perform this task
 	 * @param taskID -> the Id of Task
 	 * @param StartPose -> Task Starting Position
-
 	 * @param GoalPose -> Task Ending Position
 	 * @param deadline -> deadline of Task
 	 * @param robotTypes -> robot type that can execute this task
 	 */
-	public Task (int taskID,PoseSteering StartPose, PoseSteering GoalPose, ROBOT_TYPE ... robotTypes) {
-		this.taskID = taskID;
-		this.startLocation = StartPose;
-		this.goalLocation = GoalPose;
-
-		if (robotTypes.length == 0) throw new Error("Need to specifiy at least one robot type!");
-		this.robotTypes = new HashSet<ROBOT_TYPE>();
-		for (ROBOT_TYPE rt : robotTypes) this.robotTypes.add(rt);
+	public Task (int taskID, PoseSteering StartPose, PoseSteering GoalPose, ROBOT_TYPE ... robotTypes) {
+		this(taskID, -1, "start", "goal", StartPose, GoalPose, robotTypes);
 	}
-	
+
+	/**
+ 	 * Constructor. Generate a Task with a Starting Pose and an Ending Pose; the type is used to evaluate which 
+	 * robot can perform this task
+	 * @param taskID -> the Id of Task
+ 	 * @param startLocation -> name of the starting location
+	 * @param goalLocation -> name of the goal location
+	 * @param deadline -> deadline of Task
+	 * @param robotTypes -> robot type that can execute this task
+	 */
+	public Task (int taskID, String startLocation, String goalLocation, ROBOT_TYPE ... robotTypes) {
+		this(taskID, -1, startLocation, goalLocation, robotTypes);
+	}
+
 	/**
  	 * Constructor. Generate a Task with a Starting Pose and an Ending Pose; the type is used to evaluate which 
 	 * robot can perform this task
@@ -84,10 +93,42 @@ public class Task {
 	 * @param deadline -> deadline of Task
 	 * @param robotTypes -> robot type that can execute this task
 	 */
-	public Task (int taskID,double deadline, PoseSteering StartPose, PoseSteering GoalPose, ROBOT_TYPE ... robotTypes) {
+	public Task (int taskID, double deadline, PoseSteering StartPose, PoseSteering GoalPose, ROBOT_TYPE ... robotTypes) {
+		this(taskID, deadline, "start", "goal", StartPose, GoalPose, robotTypes);
+	}
+
+	/**
+ 	 * Constructor. Generate a Task with a Starting Pose and an Ending Pose; the type is used to evaluate which 
+	 * robot can perform this task
+	 * @param taskID -> the Id of Task
+	 * @param deadline -> deadline of Task 
+	 * @param startLocation -> name of the starting location
+	 * @param goalLocation -> name of the goal location
+	 * @param deadline -> deadline of Task
+	 * @param robotTypes -> robot type that can execute this task
+	 */
+	public Task (int taskID, double deadline, String startLocation, String goalLocation, ROBOT_TYPE ... robotTypes) {
+		this(taskID, deadline, startLocation, goalLocation, new PoseSteering(Missions.getLocationPose(startLocation),0), new PoseSteering(Missions.getLocationPose(goalLocation),0), robotTypes);
+	}
+
+	/**
+	 * Constructor. Generate a Task with a Starting and Ending Pose and Locations; the type is used to evaluate which 
+	 * robot can perform this task.
+	 * @param taskID -> the Id of Task
+	 * @param deadline -> deadline of Task 
+	 * @param StartPose -> Task Starting Position
+	 * @param GoalPose -> Task Ending Position
+	 * @param deadline -> deadline of Task
+	 * @param robotTypes -> robot type that can execute this task
+	 * @param startLocation -> name of the starting location
+	 * @param goalLocation -> name of the goal location
+	 */
+	public Task (int taskID, double deadline, String startLocation, String goalLocation, PoseSteering StartPose, PoseSteering GoalPose, ROBOT_TYPE ... robotTypes) {
 		this.taskID = taskID;
-		this.startLocation = StartPose;
-		this.goalLocation = GoalPose;
+		this.startLocation = startLocation;
+		this.goalLocation = goalLocation;
+		this.startPoseSteering = StartPose;
+		this.goalPoseSteering = GoalPose;
 		this.deadline = deadline;
 		if (robotTypes.length == 0) throw new Error("Need to specifiy at least one robot type!");
 		this.robotTypes = new HashSet<ROBOT_TYPE>();
@@ -114,19 +155,27 @@ public class Task {
 	}
 	
 	public Pose getStartPose() {
-		return this.startLocation.getPose();		
+		return this.startPoseSteering.getPose();		
 	}
 	
 	public Pose getGoalPose() {
-		return this.goalLocation.getPose();	
+		return this.goalPoseSteering.getPose();	
+	}
+	
+	public String getStartLocation() {
+		return this.startLocation;
+	}
+	
+	public String getGoalLocation() {
+		return this.goalLocation;
 	}
 
 	public PoseSteering getStart() {
-		return this.startLocation;		
+		return this.startPoseSteering;		
 	}
 	
 	public PoseSteering getGoal() {
-		return this.goalLocation;	
+		return this.goalPoseSteering;	
 	}
 	
 	public boolean isPriority() {
@@ -195,12 +244,12 @@ public class Task {
 	
 	
 	public String toString() {
-		return "Task " + taskID +" info: " + "From location: " + this.startLocation + " to Goal Location: " + this.goalLocation + (deadline != -1 ? " (deadline: " + deadline + ")" : "");
+		return "Task " + taskID +" info: " + "From location: " + this.startPoseSteering + " to Goal Location: " + this.goalPoseSteering + (deadline != -1 ? " (deadline: " + deadline + ")" : "");
 	}
 	
 	
 	public void getInfo() {
-		System.out.println("Starting Pose -> " +this.startLocation + "\n Goal Pose ->"+ this.goalLocation + "\n Robot Types ->"+ this.robotTypes
+		System.out.println("Starting Pose -> " +this.startPoseSteering + "\n Goal Pose ->"+ this.goalPoseSteering + "\n Robot Types ->"+ this.robotTypes
 				+"\n Task is Assigned "+ this.isTaskAssigned());
 	}
 	

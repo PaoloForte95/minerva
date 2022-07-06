@@ -12,6 +12,7 @@ import java.util.List;
 
 import java.util.logging.Logger;
 
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.UI.Callback;
@@ -67,8 +68,25 @@ public abstract class AbstractOptimizationProblem {
 	
 		//Force printing of (c) and license upon class loading
 		static { printLicense(); }
-	
 		
+		//How to compute paths, default mechanism
+		protected ComputePathCallback pathCB = new ComputePathCallback() {
+			@Override
+			public PoseSteering[] computePath(Task task, int pathNumber, RobotReport rr) {
+				AbstractMotionPlanner rsp =  coordinator.getMotionPlanner(rr.getRobotID()).getCopy(true);
+				rsp.setStart(rr.getPose());
+				rsp.setGoals(task.getStartPose(),task.getGoalPose());
+				rsp.setFootprint(coordinator.getFootprint(rr.getRobotID()));
+				
+				if (!rsp.plan()) {
+					System.out.println("Robot" + rr.getRobotID() +" cannot reach the Target End of Task " + task.getID());
+					//the path to reach target end not exits
+					pathsToTargetGoal.put(rr.getRobotID()*numTaskAug*alternativePaths+task.getID()*alternativePaths+pathNumber, null);		
+					return null;
+				}			
+				return rsp.getPath();
+			}
+		};
 	
 		//Optimization Problem Parameters
 		protected int numberRobots;
@@ -231,6 +249,14 @@ public abstract class AbstractOptimizationProblem {
 		public void setmaxNumberOfAlternativePaths(int alternativePaths) {
 			
 			this.alternativePaths = alternativePaths;
+		}
+
+		/**
+		 * Add a {@link ComputePathCallback} that is triggered whenever a path is computed.
+		 * @param cb The {@link ComputePathCallback} to be called whenever a path is computed.
+		 */
+		public void setComputePathCallback(ComputePathCallback cb) {
+			this.pathCB = cb;
 		}
 		
 		
@@ -770,10 +796,10 @@ public abstract class AbstractOptimizationProblem {
 	 * If a path between a couple of robot and task does not exists the cost is consider infinity.
 	 * @param robotID -> The  Robot ID
 	 * @param taskID -> The Task ID
-	 * @param alternativePath -> The path ID
+	 * @param pathNumber -> The path ID
 	 * @return The length of the specific path for the robotID to reach the target position of task taskID
 	 */
-	protected synchronized double evaluatePathLength(int robotID , int taskID, int alternativePath){
+	protected synchronized double evaluatePathLength(int robotID , int taskID, int pathNumber){
 		//Evaluate the path length for the actual couple of task and ID
 		//Initialize the path length to infinity
 		double pathLength = Double.POSITIVE_INFINITY;
@@ -789,27 +815,13 @@ public abstract class AbstractOptimizationProblem {
 			}
 			//Evaluate the path from the Robot Starting Pose to Task End Pose
 			int taskIndex = realTasksIDs.indexOf(taskID);
-			AbstractMotionPlanner rsp =  coordinator.getMotionPlanner(robotID).getCopy(true);
+			Task task = taskQueue.get(taskIndex);
 			
-			rsp.setStart(rr.getPose());
-			rsp.setGoals(taskQueue.get(taskIndex).getStartPose(),taskQueue.get(taskIndex).getGoalPose());
-			rsp.setFootprint(coordinator.getFootprint(robotID));
+			PoseSteering[] pss = this.pathCB.computePath(task, pathNumber, rr);
 			
-			if (!rsp.plan()) {
-				System.out.println("Robot" + robotID +" cannot reach the Target End of Task " + taskID);
-				//the path to reach target end not exits
-				pathsToTargetGoal.put(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+alternativePath, null);		
-				//Infinity cost is returned 
-				
-				return pathLength;
-				
-			}			
-			//If the path exists
-			//Take the Pose Steering representing the path
-			PoseSteering[] pss = rsp.getPath();
+			if (pss == null) return pathLength;
 			
-			System.out.println("Robot " +robotID +" taskID "+ taskID +" throw Path " + pss[pss.length-1].getX() + " " + pss[pss.length-1].getY() + " " + pss[pss.length-1].getTheta());
-			
+			System.out.println("Robot " +robotID +" taskID "+ taskID +" through Path " + pss[pss.length-1].getX() + " " + pss[pss.length-1].getY() + " " + pss[pss.length-1].getTheta());
 			
 			//Add the path to the FleetMaster Interface -> this is necessary for F function
 			//addPath(robotID, pss.hashCode(), pss, null, coordinator.getFootprint(robotID)); 
@@ -818,7 +830,7 @@ public abstract class AbstractOptimizationProblem {
 			//addPath(robotID, pss.hashCode(), pss, kk, tec.getFootprint(robotID));
 			
 			//Save the path to Task in the path set
-			pathsToTargetGoal.put(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+alternativePath, pss);
+			pathsToTargetGoal.put(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+pathNumber, pss);
 			//Take the Path Length
 			Mission m1 = new Mission(robotID,pss);
 			Missions.enqueueMission(m1);
@@ -846,7 +858,7 @@ public abstract class AbstractOptimizationProblem {
 				
 				//addPath(robotID, dummyTask.hashCode(), dummyTask, null, coordinator.getFootprint(robotID));
 				//Save the path to Dummy Task 
-				pathsToTargetGoal.put(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+alternativePath, dummyTask);		
+				pathsToTargetGoal.put(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+pathNumber, dummyTask);		
 				//Consider a minimal pathLength
 				pathLength = 1;
 				Mission m1 = new Mission(robotID,dummyTask);
@@ -858,7 +870,7 @@ public abstract class AbstractOptimizationProblem {
 				//dummy robot -> Consider a only virtual Robot 
 				PoseSteering[] dummyRobot = new PoseSteering[1];
 				dummyRobot[0] = new PoseSteering(taskQueue.get(0).getGoalPose(),0);
-				pathsToTargetGoal.put(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+alternativePath, dummyRobot);
+				pathsToTargetGoal.put(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+pathNumber, dummyRobot);
 				pathLength = 1;
 				Mission m1 = new Mission(robotID,dummyRobot);
 				Missions.enqueueMission(m1);
