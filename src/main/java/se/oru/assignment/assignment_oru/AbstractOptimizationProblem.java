@@ -87,6 +87,8 @@ public abstract class AbstractOptimizationProblem {
 				return rsp.getPath();
 			}
 		};
+		
+		protected TaskAssignmentCallback taskCB = null;
 	
 		//Optimization Problem Parameters
 		protected int numberRobots;
@@ -880,6 +882,14 @@ public abstract class AbstractOptimizationProblem {
 		return pathLength;
 	}
 	
+	/**
+	 * Specifies anything that should be done when a task is assigned to a robot.
+	 * @param taskCB
+	 */
+	public void setTaskAssignmentCallback(TaskAssignmentCallback taskCB) {
+		this.taskCB = taskCB;
+	}
+	
 	
 	
 	/**
@@ -1097,20 +1107,21 @@ public abstract class AbstractOptimizationProblem {
 								 taskQueue.get(j).assignRobot(robotID);
 								 taskQueue.get(j).setPaths(pss);
 								 Mission[] robotMissions = taskQueue.get(j).getMissions();
+								 if (this.taskCB != null) this.taskCB.onTaskAssignment(robotMissions);							  
 								 viz.displayTask(taskQueue.get(j).getStartPose(), taskQueue.get(j).getGoalPose(),taskID, "red");
 								 //tec.addMissions(new Mission(IDsIdleRobots[i],pss));
-								 metaCSPLogger.info("Task # "+ taskID + " is Assigned");
+								 metaCSPLogger.info("Task # "+ taskID + " is assigned");
 								 metaCSPLogger.info("Robot " + robotID +" is assigned to Task "+ taskID +" through Path " + (s+1));
 								 //tec.setTaskAssigned(robotID,taskID);
 								 coordinator.addMissions(robotMissions);
 							 }else {
-								 metaCSPLogger.info("Virtual Task # "+ taskID + " is Assigned to a real robot");
+								 metaCSPLogger.info("Virtual Task # "+ taskID + " is assigned to a real robot");
 							 }
 						 }else{
 							
 							 
 							
-							 metaCSPLogger.info("Task # "+ taskID + " is not Assigned to a real robot");
+							 metaCSPLogger.info("Task # "+ taskID + " is not assigned to a real robot");
 							 
 						 }
 					 }
@@ -1137,7 +1148,7 @@ public abstract class AbstractOptimizationProblem {
 			cont +=1;	
 			
 		}
-		 metaCSPLogger.info("Remaining task: "+ taskQueue.size());
+		 metaCSPLogger.info("Remaining tasks: "+ taskQueue.size());
 		 robotsIDs.removeAll(robotsIDs);
 		 tasksIDs.removeAll(tasksIDs);
 		 realTasksIDs.removeAll(realTasksIDs);
