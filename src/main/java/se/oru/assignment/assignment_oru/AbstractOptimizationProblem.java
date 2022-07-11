@@ -1107,7 +1107,7 @@ public abstract class AbstractOptimizationProblem {
 								 taskQueue.get(j).assignRobot(robotID);
 								 taskQueue.get(j).setPaths(pss);
 								 Mission[] robotMissions = taskQueue.get(j).getMissions();
-								 if (this.taskCB != null) this.taskCB.onTaskAssignment(robotMissions);							  
+								 if (this.taskCB != null) this.taskCB.onTaskAssignment(i,j,s,robotMissions);							  
 								 viz.displayTask(taskQueue.get(j).getStartPose(), taskQueue.get(j).getGoalPose(),taskID, "red");
 								 //tec.addMissions(new Mission(IDsIdleRobots[i],pss));
 								 metaCSPLogger.info("Task # "+ taskID + " is assigned");
