@@ -620,6 +620,14 @@ public abstract class AbstractOptimizationProblem {
 		metaCSPLogger.info(task.toString() +  "  is added" );
 		return taskQueue.add(task);
 	}
+	
+	/**
+	 * Get the current tasks queue.
+	 * @return The current tasks queue.
+	 */
+	public ArrayList<Task> getTaskQueue() {
+		return this.taskQueue;
+	}
 
     
 
@@ -824,6 +832,9 @@ public abstract class AbstractOptimizationProblem {
 			if (pss == null) return pathLength;
 			
 			System.out.println("Robot " +robotID +" taskID "+ taskID +" through Path " + pss[pss.length-1].getX() + " " + pss[pss.length-1].getY() + " " + pss[pss.length-1].getTheta());
+			
+			//NEW: Remove task from task queue:
+			//taskQueue.remove(taskIndex);
 			
 			//Add the path to the FleetMaster Interface -> this is necessary for F function
 			//addPath(robotID, pss.hashCode(), pss, null, coordinator.getFootprint(robotID)); 

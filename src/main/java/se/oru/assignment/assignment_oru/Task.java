@@ -244,12 +244,12 @@ public class Task {
 	
 	
 	public String toString() {
-		return "Task " + taskID +" info: " + "From location: " + this.startPoseSteering + " to Goal Location: " + this.goalPoseSteering + (deadline != -1 ? " (deadline: " + deadline + ")" : "");
+		return "Task " + taskID +" info: " + "From location: " + (this.startLocation == null ? this.startPoseSteering : this.startLocation)  + " to Goal Location: " + (this.goalLocation == null ? this.goalPoseSteering : this.goalLocation) + (deadline != -1 ? " (deadline: " + deadline + ")" : "");
 	}
 	
 	
 	public void getInfo() {
-		System.out.println("Starting Pose -> " +this.startPoseSteering + "\n Goal Pose ->"+ this.goalPoseSteering + "\n Robot Types ->"+ this.robotTypes
+		System.out.println("Starting Pose -> " + (this.startLocation == null ? this.startPoseSteering : this.startLocation) + "\n Goal Pose -> " + (this.goalLocation == null ? this.goalPoseSteering : this.goalLocation) + "\n Robot Types ->"+ this.robotTypes
 				+"\n Task is Assigned "+ this.isTaskAssigned());
 	}
 	
@@ -266,6 +266,8 @@ public class Task {
 			if (i == 0) ret[i].setFromLocation("Init for Robot" + this.decidedRobotID);
 			else if (i ==  paths.size()-1) ret[i].setFromLocation("Goal for Robot" + this.decidedRobotID);
 			else ret[i].setFromLocation("Waypoint " + i + " for Robot" + this.decidedRobotID);
+			//NEW: Set to location if known
+			ret[i].setToLocation(goalLocation);
 		}
 		return ret;
 		//Now you can do this: Missions.enqueue(task.getMissions());
