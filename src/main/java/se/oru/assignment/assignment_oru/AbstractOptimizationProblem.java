@@ -409,6 +409,15 @@ public abstract class AbstractOptimizationProblem {
 		return this.robotsIDs;
 	}
 	
+	/**
+	 * Get the IDs of all the idle robots considered into the problem
+	 * @return a set of all the robots IDs
+	 */
+	
+	public ArrayList <Integer> getIdleRobotsIDs() {
+		return this.IDsIdleRobots;
+	}
+	
 	
 	
 	/**
