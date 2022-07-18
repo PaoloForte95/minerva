@@ -310,13 +310,11 @@ public class BrowserTaskVisualization  implements TaskFleetVisualization {
 		String name1 = "TS"+id;
 		String name2 = "TG"+id;
 		Geometry circle0 = createCircle(start, 1);
-		Geometry circle1 = createCircle(start, 1);
 		Geometry circle2 = createCircle(goal, 1);
-		Geometry circle3 = createCircle(goal, 1);
 		String jsonString0 = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name1, circle0, "blue", -1, true, null) + "}";
-		String jsonString1 = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name1, circle1, "#ffffff", -1, true, null) + "}";
+		String jsonString1 = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name1, circle0, "#ffffff", -1, true, null) + "}";
 		String jsonString2 = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name2, circle2, color, -1, true, null) + "}";
-		String jsonString3 = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name2, circle3, "#ffffff", -1, true, null) + "}";
+		String jsonString3 = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name2, circle2, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString0);
 		enqueueMessage(jsonString1);
 		enqueueMessage(jsonString2);
@@ -332,13 +330,23 @@ public class BrowserTaskVisualization  implements TaskFleetVisualization {
 	public void removeTask(int taskId) {
 		String jsonString = "{ \"operation\" : \"removeGeometry\","
 				+ "\"data\" : "
-				+ "{ \"name\" : \""+ "TS"+taskId +"\" }}";
+				+ "{ \"name\" : \""+ "_TS"+taskId +"\" }}";
 		
 		String jsonString1 = "{ \"operation\" : \"removeGeometry\","
 				+ "\"data\" : "
-				+ "{ \"name\" : \""+ "TG"+taskId +"\" }}";
+				+ "{ \"name\" : \""+ "_TG"+taskId +"\" }}";
+		
+		String jsonString2 = "{ \"operation\" : \"removeGeometry\","
+				+ "\"data\" : "
+				+ "{ \"name\" : \""+ "TS" + taskId +"\" }}";
+		
+		String jsonString3 = "{ \"operation\" : \"removeGeometry\","
+				+ "\"data\" : "
+				+ "{ \"name\" : \""+ "TG" + taskId +"\" }}";
 		enqueueMessage(jsonString);
 		enqueueMessage(jsonString1);
+		enqueueMessage(jsonString2);
+		enqueueMessage(jsonString3);
 	}
 
 	@Override
@@ -374,7 +382,7 @@ public class BrowserTaskVisualization  implements TaskFleetVisualization {
 			coords[i] = new Coordinate(radius*Math.cos(i),radius*Math.sin(i));
 			
 		}
-		coords[6]  = new Coordinate(1,0);
+		coords[6]  = new Coordinate(radius,0);
 		Polygon circle = gf.createPolygon(coords);
 		AffineTransformation at = new AffineTransformation();
 		at.scale(1, 1);

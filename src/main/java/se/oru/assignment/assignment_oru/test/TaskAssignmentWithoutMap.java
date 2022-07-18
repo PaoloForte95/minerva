@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import se.oru.assignment.assignment_oru.OptimizationProblem;
 
 import se.oru.assignment.assignment_oru.Task;
+import se.oru.assignment.assignment_oru.methods.SimulatedAnnealingAlgorithm;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
 import se.oru.assignment.assignment_oru.util.BrowserTaskVisualization;
 import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
@@ -240,7 +241,9 @@ public class TaskAssignmentWithoutMap {
 		
 		//MPSolver solver = assignmentProblem.createOptimizationProblem();
 		
-		SystematicAlgorithm sysAlg = new SystematicAlgorithm();
-		assignmentProblem.startTaskAssignment(sysAlg);		
+		SystematicAlgorithm systematicAlgorithm = new SystematicAlgorithm();
+		SimulatedAnnealingAlgorithm simulatedAnnealing = new SimulatedAnnealingAlgorithm();
+		assignmentProblem.startTaskAssignment(simulatedAnnealing);	
+		
 	}
 }

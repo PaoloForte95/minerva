@@ -3,6 +3,9 @@ package se.oru.assignment.assignment_oru.methods;
 import se.oru.assignment.assignment_oru.AbstractOptimizationProblem;
 import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeCoordinator;
 
+import java.util.logging.Logger;
+
+import org.metacsp.utility.logging.MetaCSPLogging;
 
 import com.google.ortools.linearsolver.*;
 
@@ -16,7 +19,7 @@ import com.google.ortools.linearsolver.*;
 public abstract class AbstractOptimizationAlgorithm  {
 
 	protected double timeOut = Double.POSITIVE_INFINITY;
-
+	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
 	/**
 	 * Set the timeOut for the optimization algorithm (in minutes). The algorithm will search a solution until this time.
 	 * Use number from 0.1 (10 seconds) to 0.6 (60 seconds) for seconds

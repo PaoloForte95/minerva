@@ -94,7 +94,7 @@ This project is supported by
 * The <a href="https://www.more-itn.eu/">MORE Project</a> Research Profile, funded by the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement. 
 
 ## License
-assignment_oru - Robot-agnostic online coordination for multiple robots
+assignment_oru - Robot-agnostic online task assignment for multiple robots
 
 Copyright &copy; 2017-2021 Paolo Forte
 
