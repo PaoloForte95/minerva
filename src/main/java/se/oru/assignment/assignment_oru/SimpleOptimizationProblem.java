@@ -512,11 +512,13 @@ public class SimpleOptimizationProblem extends AbstractOptimizationProblem {
 	 */
 	protected MPSolver buildOptimizationProblem() {
 		//Initialize a linear solver 
+
+		MPSolver optimizationProblem = MPSolver.createSolver("CBC");
 		
 		
-		MPSolver optimizationProblem = new MPSolver(
-				"TaskAssignment", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
-		
+//		MPSolver optimizationProblem = new MPSolver(
+//				"TaskAssignment", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+
 		//MPSolver optimizationProblem = new MPSolver(
 				//"TaskAssignment", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
 		//START DECISION VARIABLE VARIABLE
