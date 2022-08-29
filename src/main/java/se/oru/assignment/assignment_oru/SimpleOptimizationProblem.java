@@ -40,11 +40,6 @@ public class SimpleOptimizationProblem extends AbstractOptimizationProblem {
 //	protected long timeRequiretoComputePathsDelay;
 //	protected long initialTime;
 
-	@Override
-	public double evaluateMachineProductivity(int robotID, int taskID, int pathID, double pathDelay) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public double evaluateInterferenceCost(int robotID, int taskID, int pathID, double[][][] assignmentMatrix) {

@@ -68,14 +68,9 @@ public class OptimizationProblem extends AbstractOptimizationProblem{
 		protected long initialTime;
 			
 		
-		
 		//FleetMaster Interface Parameters	
 		protected AbstractFleetMasterInterface fleetMasterInterface = null;
 		protected boolean propagateDelays = false;
-		
-		
-		
-		
 
 		/**
 		 * Enable and initialize the fleetmaster library to estimate precedences to minimize the overall completion time.
@@ -1256,11 +1251,7 @@ public class OptimizationProblem extends AbstractOptimizationProblem{
 		
 	}
 
-	@Override
-	public double evaluateMachineProductivity(int robotID, int taskID, int pathID, double pathDelay) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+
 	
 	
 	

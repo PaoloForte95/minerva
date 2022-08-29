@@ -1337,7 +1337,7 @@ public abstract class AbstractOptimizationProblem {
 	}
 
 
-	public abstract double evaluateMachineProductivity(int robotID, int taskID, int pathID, double pathDelay);
+
 	
 	
 	}
