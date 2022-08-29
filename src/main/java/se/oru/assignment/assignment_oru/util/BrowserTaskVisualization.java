@@ -378,7 +378,7 @@ public class BrowserTaskVisualization  implements TaskFleetVisualization {
 	private Geometry createCircle(Pose pose, double radius) {		
 		GeometryFactory gf = new GeometryFactory();
 		Coordinate[] coords = new Coordinate[7];
-		for(int i =0; i <= 2*Math.PI;i += Math.PI/2) {
+		for(int i = 0; i <= 2*Math.PI;i += Math.PI/2) {
 			coords[i] = new Coordinate(radius*Math.cos(i),radius*Math.sin(i));
 			
 		}
