@@ -42,7 +42,7 @@ To install the assignment framework, clone this repository and compile the sourc
 ```
 $ git clone https://github.com/PaoloForte95/assignment_oru.git
 $ cd assignment_oru
-$ ./gradlew install eclipse
+$ ./gradlew build eclipse
 
 ```
 
