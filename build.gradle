@@ -40,7 +40,7 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-version = '0.1.0'
+version = '0.2.0'
 // Call your group something meaninful, e.g., '<inverse-url>.<project-name>'
 group = 'se.oru.assignment'
 
