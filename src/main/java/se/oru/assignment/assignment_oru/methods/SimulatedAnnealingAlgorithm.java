@@ -1,9 +1,13 @@
 package se.oru.assignment.assignment_oru.methods;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Random;
-import se.oru.assignment.assignment_oru.AbstractOptimizationProblem;
+
+import org.metacsp.utility.logging.MetaCSPLogging;
+
+import se.oru.assignment.assignment_oru.ConstraintOptimizationProblem;
+import se.oru.assignment.assignment_oru.LinearOptimizationProblem;
+
 import com.google.ortools.linearsolver.*;
 
 
@@ -11,7 +15,10 @@ import com.google.ortools.linearsolver.*;
 public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 	
 		
-	
+	public SimulatedAnnealingAlgorithm(){
+		super();
+		logger = MetaCSPLogging.getLogger(this.getClass());
+	}
 	
 	public static double probability(double f1, double f2, int iteration) {
         if (f2 < f1) return 1;
@@ -20,15 +27,15 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 	
 
 	
-	public double [][][] solveOptimizationProblem(AbstractOptimizationProblem oap){
+	public int [][][] solveOptimizationProblem(LinearOptimizationProblem oap){
 		return solveOptimizationProblem(oap,-1);
 	
 	}
 
 
 
-	public double [][][] solveOptimizationProblem(AbstractOptimizationProblem oap,int iterations){
-		metaCSPLogger.info("Solving the problem using the Simulated Annealing Algorithm");
+	public int [][][] solveOptimizationProblem(LinearOptimizationProblem oap,int iterations){
+		logger.info("Solving the problem using the Simulated Annealing Algorithm");
 		Random rand = new Random(3455343);
 		MPSolver optimizationModel = oap.getModel();
 		ArrayList<Integer> IDsAllRobots = oap.getRobotsIDs();
@@ -44,11 +51,11 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 	
 	
 		//Initialize the optimal assignment and the cost associated to it
-		double [][][] optimalAssignmentMatrix = new double[numRobotAug][numTaskAug][maxNumPaths];
+		int [][][] optimalAssignmentMatrix = new int[numRobotAug][numTaskAug][maxNumPaths];
 		double objectiveOptimalValue = 100000000;
 		//Solve the optimization problem
 		optimizationModel.solve();
-		double [][][] AssignmentMatrix = oap.getAssignmentMatrix(optimizationModel);
+		int [][][] AssignmentMatrix = oap.getAssignmentMatrix();
 		int randomRobotID1 = 0;
 		int prova2 = 0;
 		
@@ -67,7 +74,7 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 		int index2i = 0;
 		int index2j = 0;
 		int index2s = 0;
-		double [][][] newAssignmentMatrix = new double[numRobotAug][numTaskAug][maxNumPaths];
+		int [][][] newAssignmentMatrix = new int[numRobotAug][numTaskAug][maxNumPaths];
 		for(int i=0; i< AssignmentMatrix.length;i ++) {
 			for(int j = 0 ; j <AssignmentMatrix[0].length; j++) {
 				for(int s = 0; s < maxNumPaths; s++) {
@@ -87,8 +94,8 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 		randomRobotID1 = IDsRandomRobots.get(randomIndex);
 	
 		for(int robotID: IDsAllRobots) {
-			if(oap.getIdleRobotsIDs().contains(robotID)){			
-				if(oap.getRobotTypes(robotID) == oap.getRobotTypes(randomRobotID1)) {
+			if(oap.getRealRobotsIDs().contains(robotID)){			
+				if(oap.getRobotType(robotID) == oap.getRobotType(randomRobotID1)) {
 					IDsRandomRobots2.add(robotID);
 					
 				}
@@ -115,8 +122,8 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 						randomRobotID1 = IDsRandomRobots.get(randomIndex);
 						IDsRandomRobots.remove(randomIndex);
 						for(int robotID: IDsAllRobots) {
-							if(oap.getIdleRobotsIDs().contains(robotID)){			
-								if(oap.getRobotTypes(robotID) == oap.getRobotTypes(randomRobotID1)) {
+							if(oap.getRealRobotsIDs().contains(robotID)){			
+								if(oap.getRobotType(robotID) == oap.getRobotType(randomRobotID1)) {
 									IDsRandomRobots2.add(robotID);
 									
 								}
@@ -255,9 +262,15 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 		}	
 		}
 		//Return the Optimal Assignment Matrix 
-		//String ppMatrixOptimal = "Test"+b+"/Sys/MatrixOptimal-T" + a +".txt";
-		//saveMatrixinFile(ppMatrixOptimal,optimalAssignmentMatrix);
 		return  optimalAssignmentMatrix;    
+	}
+
+
+
+	@Override
+	public int[][][] solveOptimizationProblem(ConstraintOptimizationProblem oap) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'solveOptimizationProblem'");
 	}
 	
 	}

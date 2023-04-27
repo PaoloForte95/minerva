@@ -1,36 +1,39 @@
 package se.oru.assignment.assignment_oru.fleetmasterinterface;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope.SpatialEnvelope;
 import org.metacsp.utility.logging.MetaCSPLogging;
 
+
 import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.DoubleByReference;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 import aima.core.util.datastructure.Pair;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.GridParams;
+
+import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.FleetGridParams;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.PathPose;
-import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.CumulatedIndexedDelaysList;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.TrajParams;
+import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.VehicleModel2d;
+
 
 public abstract class AbstractFleetMasterInterface {
 	protected HashMap<Integer, Long> paths = null; //teID (or this pathID), fleetmaster pathID 
 	protected HashMap<Integer, TrajParams> trajParams = null; //robotID, trajectory parameters
-	protected GridParams gridParams = null;
+	protected FleetGridParams gridParams = null;
+	//protected VehicleModelParam vehicleParam = null;
 	protected PointerByReference p = null;
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(FleetMasterInterface.class);
 	
@@ -54,12 +57,11 @@ public abstract class AbstractFleetMasterInterface {
 
 	public static FleetMasterInterfaceLib INSTANCE = null;
 	static {
-		NativeLibrary.addSearchPath("fleetmaster", "FleetMasterInterface"); //FIXME How to add the path of the library? Now it is in {$FLEETMASTER_WS}/devel
-		INSTANCE = Native.loadLibrary("fleetmaster", FleetMasterInterfaceLib.class);
-		 
+		//If the library is located in a custom location, use the line below
+		//NativeLibrary.addSearchPath("eclnav_fleet", "FleetMasterInterface");
+		INSTANCE = Native.load("eclnav_fleet", FleetMasterInterfaceLib.class);
 	}
 	
-
 	/**
 	 * Class constructor.
 	 * @param origin_x The x coordinate (in global inertial frame) of the lower-left pixel of fleetmaster GridMap.
@@ -74,17 +76,17 @@ public abstract class AbstractFleetMasterInterface {
 	 */
 	public AbstractFleetMasterInterface(double origin_x, double origin_y, double origin_theta, double resolution, long width, long height, boolean dynamic_size, boolean debug) {
 		DEFAULT_TRAJ_PARAMS = new TrajParams();
-		DEFAULT_TRAJ_PARAMS.maxVel = 1.;
-	    DEFAULT_TRAJ_PARAMS.maxVelRev = 1.;
-	    DEFAULT_TRAJ_PARAMS.useSteerDriveVel = true;
-	    DEFAULT_TRAJ_PARAMS.maxRotationalVel = 1.;	
-	    DEFAULT_TRAJ_PARAMS.maxRotationalVelRev = 1.;
-	    DEFAULT_TRAJ_PARAMS.maxSteeringAngleVel = 1.;
-	    DEFAULT_TRAJ_PARAMS.maxAcc = 1.;
-	    DEFAULT_TRAJ_PARAMS.maxRotationalAcc = 1.;
-	    DEFAULT_TRAJ_PARAMS.maxSteeringAngleAcc = 1.;
+		//DEFAULT_TRAJ_PARAMS.maxVel = 1.;
+	   // DEFAULT_TRAJ_PARAMS.maxVelRev = 1.;
+	    ///DEFAULT_TRAJ_PARAMS.useSteerDriveVel = true;
+	    //DEFAULT_TRAJ_PARAMS.maxRotationalVel = 1.;	
+	    //DEFAULT_TRAJ_PARAMS.maxRotationalVelRev = 1.;
+	    //DEFAULT_TRAJ_PARAMS.maxSteeringAngleVel = 1.;
+	    ///DEFAULT_TRAJ_PARAMS.maxAcc = 1.;
+	    //DEFAULT_TRAJ_PARAMS.maxRotationalAcc = 1.;
+	    //DEFAULT_TRAJ_PARAMS.maxSteeringAngleAcc = 1.;
 	    
-		gridParams = new GridParams();
+		gridParams = new FleetGridParams();
 		gridParams.origin.x = origin_x;
 		gridParams.origin.y = origin_y;
 		gridParams.origin.theta = origin_theta;
@@ -93,16 +95,21 @@ public abstract class AbstractFleetMasterInterface {
 		gridParams.height = new NativeLong(height);
 		gridParams.dynamic_size = dynamic_size;
 		gridParams.debug = debug;
+		
+		//vehicleParam = new VehicleModelParam();
+		//vehicleParam.vehicle_model_2d_type = VehicleModel2dType.Articulated;
+		
 	    
 		this.paths = new HashMap<Integer, Long>();
 		this.trajParams = new HashMap<Integer, TrajParams>();
+
 	};
 	
 	/**
 	 * Abstract class constructor
 	 */
 	public AbstractFleetMasterInterface() {
-		this(0., 0., 0., 0.1, 100, 100, false, false);
+		this(0., 0., 0., 0.05, 1000, 1000, true, false);
 	}
 	
 	/**
@@ -113,7 +120,7 @@ public abstract class AbstractFleetMasterInterface {
 		p = INSTANCE.init(gridParams);
 		return true;
 	}
-		
+
 	/**
 	 * Set the value of the footprint used for robots if none is specified.
 	 */
@@ -130,38 +137,139 @@ public abstract class AbstractFleetMasterInterface {
 		return DEFAULT_FOOTPRINT;
 	}
 	
-	/**
-	 * Set the value of the trajectory parameters used for robots if none is specified.
-	 */
-	public void setDefaultTrajectoryParams(double maxVel, double maxVelRev, boolean useSteerDriveVel, double maxRotationalVel, double maxRotationalVelRev, double maxSteeringAngleVel, double maxAcc, double maxRotationalAcc, double maxSteeringAngleAcc) {
-		DEFAULT_TRAJ_PARAMS.maxVel = maxVel;
-		DEFAULT_TRAJ_PARAMS.maxVelRev = maxVelRev;
-		DEFAULT_TRAJ_PARAMS.useSteerDriveVel = useSteerDriveVel;
-		DEFAULT_TRAJ_PARAMS.maxRotationalVel = maxRotationalVel;
-		DEFAULT_TRAJ_PARAMS.maxRotationalVelRev = maxRotationalVelRev;
-		DEFAULT_TRAJ_PARAMS.maxSteeringAngleVel = maxSteeringAngleVel;
-		DEFAULT_TRAJ_PARAMS.maxAcc = maxAcc;
-		DEFAULT_TRAJ_PARAMS.maxRotationalAcc = maxRotationalAcc;
-		DEFAULT_TRAJ_PARAMS.maxSteeringAngleAcc = maxSteeringAngleAcc;
-	}
 	
 	/**
 	 * Set the trajectory parameters for a robot. Use <code>-1</code> when the parameter is not known,
 	 * where maxSteeringAngleVel equal to <code>-1</code> will automatically force useSteerDriveVel to be <code>false</code>.
 	 * @param robotID The robot ID.
 	 */
-	public void setTrajParams(int robotID, double maxVel, double maxVelRev, boolean useSteerDriveVel, double maxRotationalVel, double maxRotationalVelRev, double maxSteeringAngleVel, double maxAcc, double maxRotationalAcc, double maxSteeringAngleAcc) {;
-		    
-		    trajParams.put(robotID, new TrajParams());
-		    trajParams.get(robotID).maxVel = maxVel;
-		    trajParams.get(robotID).maxVelRev = maxVelRev;
-		    trajParams.get(robotID).useSteerDriveVel = useSteerDriveVel;
-		    trajParams.get(robotID).maxRotationalVel = maxRotationalVel;
-		    trajParams.get(robotID).maxRotationalVelRev = maxRotationalVelRev;
-		    trajParams.get(robotID).maxSteeringAngleVel = maxSteeringAngleVel;
-		    trajParams.get(robotID).maxAcc = maxAcc;
-		    trajParams.get(robotID).maxRotationalAcc = maxRotationalAcc;
-		    trajParams.get(robotID).maxSteeringAngleAcc = maxSteeringAngleAcc;
+	public void setTrajParams(int robotID, TrajParams param) {;
+		
+		trajParams.put(robotID, param);
+		INSTANCE.setTrajectoryParams(p, robotID, param, param.debugPrefix);
+	}
+
+	/**
+	 * Set the trajectory parameters for a robot. Use <code>-1</code> when the parameter is not known,
+	 * where maxSteeringAngleVel equal to <code>-1</code> will automatically force useSteerDriveVel to be <code>false</code>.
+	 * @param robotID The robot ID.
+	 */
+	public void setTrajParams(int robotID, double maxVel, double maxAcc) {;
+		TrajParams param = new TrajParams();
+		param.maxVel = maxVel;
+		trajParams.put(robotID, param);
+		INSTANCE.setTrajectoryParams(p, robotID, param, param.debugPrefix);
+	}
+
+
+	public void setRobotType(int robotID, int vehicle_type){
+		VehicleModel2d robotType = new VehicleModel2d();
+		robotType.type = vehicle_type;
+		metaCSPLogger.info("Setting type vehicle " + robotID + " to " + robotType.type);
+		INSTANCE.setVehicleType(p, robotID, robotType);
+	}
+
+
+	public Pair<Double,Double> computeTimeDelay(PoseSteering[] path1, PoseSteering[] path2, int robotID1, int robotID2 ){
+		PathPose[] pi1 = (PathPose[])new PathPose().toArray(path1.length);
+		double[] steering = new double[path1.length];
+		for (int i = 0; i < path1.length; i++) {
+			pi1[i].x = path1[i].getX();
+			pi1[i].y = path1[i].getY();
+			pi1[i].theta = path1[i].getTheta();
+			steering[i] = path1[i].getSteering();
+		}
+
+		PathPose[] pi2 = (PathPose[])new PathPose().toArray(path2.length);
+		double[] steering2 = new double[path2.length];
+		for (int i = 0; i < path2.length; i++) {
+			pi2[i].x = path2[i].getX();
+			pi2[i].y = path2[i].getY();
+			pi2[i].theta = path2[i].getTheta();
+			steering2[i] = path2[i].getSteering();
+		}
+
+		DoubleByReference delayTe1 = new DoubleByReference();
+		DoubleByReference delayTe2 = new DoubleByReference();
+		INSTANCE.computeTimeDelay(p, pi1,  path1.length, pi2, path2.length, robotID1, robotID2, delayTe1,delayTe2);
+		return new Pair<Double, Double>(delayTe1.getValue(), delayTe2.getValue());
+	}
+
+	public Pair<Double,Double> computeTimeDelayWStartandGoal(Pose start1, Pose goal1, Pose start2, Pose goal2, int robotID1, int robotID2 ){
+		
+		PathPose ps1 = new PathPose();
+		ps1.x = start1.getX();
+		ps1.y = start1.getY();
+		ps1.theta = start1.getTheta();
+		PathPose pg1 = new PathPose();
+		pg1.x = goal1.getX();
+		pg1.y = goal1.getY();
+		pg1.theta = goal1.getTheta();
+
+		PathPose ps2 = new PathPose();
+		ps2.x = start2.getX();
+		ps2.y = start2.getY();
+		ps2.theta = start2.getTheta();
+		PathPose pg2 = new PathPose();
+		pg2.x = goal2.getX();
+		pg2.y = goal2.getY();
+		pg2.theta = goal2.getTheta();
+
+		DoubleByReference delayTe1 = new DoubleByReference();
+		DoubleByReference delayTe2 = new DoubleByReference();
+		INSTANCE.computeTimeDelayWStartandGoal(p, ps1,pg1, ps2,pg2, robotID1, robotID2, delayTe1,delayTe2);
+		//metaCSPLogger.info("Delay if x drives first: " + delayTe1.getValue());
+		//metaCSPLogger.info("Delay if y drives first: " + delayTe2.getValue());
+		return new Pair<Double, Double>(delayTe1.getValue(), delayTe2.getValue());
+	}
+    
+	public PoseSteering[] calculatePath(int robotID, Pose start, ArrayList<Pose> goals, double distanceBetweenPathPoints ){
+
+		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
+		for (int i = 0; i < goals.size(); i++) {
+			Pose goal = goals.get(i);
+			if (i > 0) start = goals.get(i-1);
+			PoseSteering[] pathPoses = calculatePath(robotID, start,goal, distanceBetweenPathPoints);
+			if (i == 0) finalPath.add(pathPoses[0]);
+			for (int j = 1; j < pathPoses.length; j++) finalPath.add(pathPoses[j]);
+		}
+		
+		PoseSteering[] path = finalPath.toArray(new PoseSteering[finalPath.size()]);
+		return path;
+	}
+    
+	public  PoseSteering[] calculatePath(int robotID, Pose start, Pose goal, double distanceBetweenPathPoints ){
+		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
+		PointerByReference pathi = new PointerByReference();
+		PointerByReference curvsi = new PointerByReference();
+		IntByReference path_length = new IntByReference();
+		PathPose ps = new PathPose();
+		ps.x = start.getX();
+		ps.y = start.getY();
+		ps.theta = start.getTheta();
+		PathPose pg = new PathPose();
+		pg.x = goal.getX();
+		pg.y = goal.getY();
+		pg.theta = goal.getTheta();
+		INSTANCE.calculatePath(p, robotID, ps, pg, pathi,curvsi, path_length,distanceBetweenPathPoints);
+		metaCSPLogger.info("Path Length: " + path_length.getValue());	
+		//Get the Path points
+		final Pointer pathVals = pathi.getValue();
+		final PathPose valsRef = new PathPose(pathVals);
+		valsRef.read();
+		int numVals = path_length.getValue();
+		if (numVals == 0) return null;
+		PathPose[] pathPoses = (PathPose[])valsRef.toArray(numVals);
+		finalPath.add(new PoseSteering(pathPoses[0].x, pathPoses[0].y, pathPoses[0].theta, 0.0));
+		for (int j = 1; j < pathPoses.length; j++) finalPath.add(new PoseSteering(pathPoses[j].x, pathPoses[j].y, pathPoses[j].theta, 0.0));
+		INSTANCE.cleanupPath(pathVals);
+		//Get the Path curvatures
+		final Pointer pathCurvs = curvsi.getValue();
+		double[] curvatures = pathCurvs.getDoubleArray(0, numVals);
+		
+
+		
+		return finalPath.toArray(new PoseSteering[finalPath.size()]);
 	}
 	
 	/**
@@ -238,8 +346,8 @@ public abstract class AbstractFleetMasterInterface {
 		double bottom_left_y = (bbx == null) ? Double.MAX_VALUE : bbx[0].y;
 		double top_right_x = (bbx == null) ? Double.MAX_VALUE : bbx[2].x;
 		double top_right_y = (bbx == null) ? Double.MAX_VALUE : bbx[2].y;
-		//pathCode = new Long(INSTANCE.addPath(p, path, steering, pathToAdd.length, trjp, coordinates_x, coordinates_y, coordinates.length, bottom_left_x, bottom_left_y, top_right_x, top_right_y));
-		pathCode = Long.valueOf(INSTANCE.addPath(p, path, steering, pathToAdd.length, trjp, coordinates_x, coordinates_y, coordinates.length, bottom_left_x, bottom_left_y, top_right_x, top_right_y));
+		INSTANCE.addPathInterface(p, path);
+		//pathCode = Long.valueOf(INSTANCE.addPathInterface(path);
 		paths.put(pathID, pathCode);
 
 		metaCSPLogger.info("Adding path RobotID: " + robotID + ", pathID: " + pathID + ", fleetmaster pathID: " + pathCode + ".");
@@ -294,78 +402,7 @@ public abstract class AbstractFleetMasterInterface {
 		 return false;
 	}
 	
-	/**
-	 * Returning the increment of the time of completion of both the robots when giving precedence to the other at a given @{CriticalSection}. Specifically,
-	 * the first value is the increment of the time of completion of the first robot due to the queried critical section when giving precedence to the second one, viceversa the second value.
-	 * Negative delays will be returned to indicate how much a robot may be delayed before the nominal temporal profile of the two robots may conflict while assuming the critical point of both to be set to -1.
-	 * @param cs The critical section to be queried.
-	 * @param te1TCDelays Additional delays to the single-robot time of completion of te1 due to future critical sections along te1 (to be used for propagation).
-	 * @param te2TCDelays Additional delays to the single-robot time of completion of te2 due to future critical sections along te2 (to be used for propagation).
-	 * @return The time of completion increments.
-	 */	
-	public Pair<Double,Double> queryTimeDelay(CriticalSection cs, CumulatedIndexedDelaysList te1TCDelays, CumulatedIndexedDelaysList te2TCDelays) {
-		Pair<Double, Double> ret = new Pair<Double, Double>(Double.NaN, Double.NaN);
-		if (cs != null) {
-			int teID1 = cs.getTe1().getID();
-			int teID2 = cs.getTe2().getID();
-			if (paths.containsKey(teID1) && (paths.containsKey(teID2))) {
-				DoubleByReference delayTe1 = new DoubleByReference();
-				DoubleByReference delayTe2 = new DoubleByReference();
-				INSTANCE.queryTimeDelay(p, paths.get(teID1), paths.get(teID2), Math.max(0, cs.getTe1Start()-1), Math.min(cs.getTe1().getPathLength()-1, cs.getTe1End()+1), 
-						Math.max(0, cs.getTe2Start()-1), Math.min(cs.getTe2().getPathLength()-1, cs.getTe2End()+1), te1TCDelays.indices, te1TCDelays.values, te1TCDelays.size, te2TCDelays.indices, te2TCDelays.values, te2TCDelays.size, delayTe1, delayTe2);
-				ret = new Pair<Double, Double>(delayTe1.getValue(), delayTe2.getValue());
-			}
-		}
-		metaCSPLogger.info("queryTimeDelay at cs: " + cs + " return: " + ret + ".");
-		return ret;
-	}
+
 	
-	
-	/**
-	 * Returning the increment of the time of completion of both the robots when giving precedence to the other at a given @{CriticalSection}. Specifically,
-	 * the first value is the increment of the time of completion of the first robot due to the queried critical section when giving precedence to the second one, viceversa the second value.
-	 * Negative delays will be returned to indicate how much a robot may be delayed before the nominal temporal profile of the two robots may conflict while assuming the critical point of both to be set to -1.
-	 * @param cs The critical section to be queried.
-	 * @param te1TCDelays Additional delays to the single-robot time of completion of te1 due to future critical sections along te1 (to be used for propagation).
-	 * @param te2TCDelays Additional delays to the single-robot time of completion of te2 due to future critical sections along te2 (to be used for propagation).
-	 * @return The time of completion increments.
-	 */	
-	public Pair<Double,Double> queryTimeDelay(CriticalSection cs, CumulatedIndexedDelaysList te1TCDelays, CumulatedIndexedDelaysList te2TCDelays,PoseSteering[] pss1, PoseSteering[] pss2 ) {
-		Pair<Double, Double> ret = new Pair<Double, Double>(Double.NaN, Double.NaN);
-		if (cs != null) {
-			int teID1 = pss1.hashCode();
-			int teID2 = pss2.hashCode();
-			if (paths.containsKey(teID1) && (paths.containsKey(teID2))) {
-				DoubleByReference delayTe1 = new DoubleByReference();
-				DoubleByReference delayTe2 = new DoubleByReference();
-				INSTANCE.queryTimeDelay(p, paths.get(teID1), paths.get(teID2), Math.max(0, cs.getTe1Start()-1), Math.min(pss1.length-1, cs.getTe1End()+1), 
-						Math.max(0, cs.getTe2Start()-1), Math.min(pss2.length-1, cs.getTe2End()+1), te1TCDelays.indices, te1TCDelays.values, te1TCDelays.size, te2TCDelays.indices, te2TCDelays.values, te2TCDelays.size, delayTe1, delayTe2);
-				ret = new Pair<Double, Double>(delayTe1.getValue(), delayTe2.getValue());
-			}
-		}
-		metaCSPLogger.info("queryTimeDelay at cs: " + cs + " return: " + ret + ".");
-		return ret;
-	}
-	
-	
-	/**
-	 * Check if a path has been correctly added.
-	 * @param pathID The pathID.
-	 * @return <code>true</code> if correctly added.
-	 */
-	public boolean checkPathHasBeenAdded(int pathID) {
-		if (paths.containsKey(pathID) && !paths.get(pathID).equals(new Long(0)))	
-			return true;
-		return false;
-	}
-	
-	/**
-	 * Check if a {@link TrajectoryEnvelope} has been correctly added.
-	 * @param te The trajectory envelope.
-	 * @return <code>true</code> if correctly added.
-	 */
-	public boolean checkTrajectoryEnvelopeHasBeenAdded(TrajectoryEnvelope te) {
-		return checkPathHasBeenAdded(te.getID());
-	}
 
 }

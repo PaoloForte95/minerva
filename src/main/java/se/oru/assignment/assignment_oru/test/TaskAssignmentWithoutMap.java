@@ -8,7 +8,7 @@ import com.google.ortools.Loader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import se.oru.assignment.assignment_oru.OptimizationProblem;
-
+import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SimulatedAnnealingAlgorithm;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
@@ -116,13 +116,8 @@ public class TaskAssignmentWithoutMap {
 		tec.setFootprint(5, footprint);
 
 		
-		
 		String yamlFile = "maps/map-empty.yaml";
 		
-		
-		
-		
-
 		Pose startPoseGoal1 = new Pose(16.0,25.0,Math.PI/2);
 		Pose startPoseGoal2 = new Pose(19.0,25.0,Math.PI/2);
 		Pose startPoseGoal3 = new Pose(22.0,25.0,Math.PI/2);
@@ -140,13 +135,6 @@ public class TaskAssignmentWithoutMap {
 		
 		Pose goalPoseGoal6 = new Pose(4.0,30.0,Math.PI/2);
 		
-		
-	
-
-		
-
-		
-		
 		//Pose startPoseGoal4 = new Pose(27.0,20.0,Math.PI/2);
 		//Pose startPoseGoal5 = new Pose(26.0,5.0,0.0);
 		
@@ -154,12 +142,12 @@ public class TaskAssignmentWithoutMap {
 		//Pose goalPoseRobot4 = new Pose(48.0,27.0,0.0);
 		//Pose goalPoseRobot5 = new Pose(52.0,6.0,0.0);
 
-		Task task1 = new Task(1,startPoseGoal1,goalPoseGoal1,ROBOT_TYPE.MOBILE_ROBOT);
-		Task task2 = new Task(2,startPoseGoal2,goalPoseGoal2,ROBOT_TYPE.MOBILE_ROBOT);
-		Task task3 = new Task(3,startPoseGoal3,goalPoseGoal3,ROBOT_TYPE.MOBILE_ROBOT);
+		Task task1 = new Task(1,startPoseGoal1,goalPoseGoal1,ROBOT_TYPE.CARLIKE);
+		Task task2 = new Task(2,startPoseGoal2,goalPoseGoal2,ROBOT_TYPE.CARLIKE);
+		Task task3 = new Task(3,startPoseGoal3,goalPoseGoal3,ROBOT_TYPE.CARLIKE);
 
-		Task task4 = new Task(4,startPoseGoal4,goalPoseGoal4,ROBOT_TYPE.MOBILE_ROBOT);
-		Task task5 = new Task(5,startPoseGoal5,goalPoseGoal5,ROBOT_TYPE.MOBILE_ROBOT);
+		Task task4 = new Task(4,startPoseGoal4,goalPoseGoal4,ROBOT_TYPE.CARLIKE);
+		Task task5 = new Task(5,startPoseGoal5,goalPoseGoal5,ROBOT_TYPE.CARLIKE);
 		
 		//Task task6 = new Task(6,startPoseGoal6,goalPoseGoal6,1);
 	
@@ -169,8 +157,8 @@ public class TaskAssignmentWithoutMap {
 		assignmentProblem.addTask(task1);
 		assignmentProblem.addTask(task2);
 		assignmentProblem.addTask(task3);
-		//assignmentProblem.addTask(task4);
-		//assignmentProblem.addTask(task5);
+		assignmentProblem.addTask(task4);
+		assignmentProblem.addTask(task5);
 		//assignmentProblem.addTask(task6);
 		
 		tec.placeRobot(1,startPoseRobot1);
@@ -212,7 +200,7 @@ public class TaskAssignmentWithoutMap {
 				{{1.0},{0.0},{0.0},{0.0},{0.0}}};
 		
 		//Solve the problem to find some feasible solution
-		double alpha = 1.0;
+		double alpha = 0.6;
 		
 		//tec.setFakeCoordinator(true);
 		//tec.setAvoidDeadlocksGlobally(true);
@@ -222,7 +210,7 @@ public class TaskAssignmentWithoutMap {
 		
 		assignmentProblem.setmaxNumberOfAlternativePaths(numPaths);
 		assignmentProblem.setCoordinator(tec);
-		assignmentProblem.instantiateFleetMaster(0.1, false);
+		assignmentProblem.instantiateFleetMaster(0.05, false);
 		
 		
 		
@@ -230,20 +218,26 @@ public class TaskAssignmentWithoutMap {
 		
 		assignmentProblem.setLinearWeight(alpha);
 		assignmentProblem.setCostFunctionsWeight(1.0, 0.0, 0.0);
-	
 		
-		assignmentProblem.setRobotType(1, ROBOT_TYPE.MOBILE_ROBOT);
-		assignmentProblem.setRobotType(2, ROBOT_TYPE.MOBILE_ROBOT);
-		assignmentProblem.setRobotType(3, ROBOT_TYPE.MOBILE_ROBOT);
-		assignmentProblem.setRobotType(4, ROBOT_TYPE.MOBILE_ROBOT);
-		assignmentProblem.setRobotType(5, ROBOT_TYPE.MOBILE_ROBOT);
+
+		Robot rb1 = new Robot(1,ROBOT_TYPE.CARLIKE);
+		Robot rb2 = new Robot(2,ROBOT_TYPE.CARLIKE);
+		Robot rb3 = new Robot(3,ROBOT_TYPE.CARLIKE);
+		Robot rb4 = new Robot(4,ROBOT_TYPE.CARLIKE);
+		Robot rb5 = new Robot(5,ROBOT_TYPE.CARLIKE);
+		
+		assignmentProblem.addRobot(rb1);
+		assignmentProblem.addRobot(rb2);
+		assignmentProblem.addRobot(rb3);
+		assignmentProblem.addRobot(rb4);
+		assignmentProblem.addRobot(rb5);
 		
 		
 		//MPSolver solver = assignmentProblem.createOptimizationProblem();
 		
 		SystematicAlgorithm systematicAlgorithm = new SystematicAlgorithm();
-		SimulatedAnnealingAlgorithm simulatedAnnealing = new SimulatedAnnealingAlgorithm();
-		assignmentProblem.startTaskAssignment(simulatedAnnealing);	
+		//SimulatedAnnealingAlgorithm simulatedAnnealing = new SimulatedAnnealingAlgorithm();
+		assignmentProblem.startTaskAssignment(systematicAlgorithm);	
 		
 	}
 }

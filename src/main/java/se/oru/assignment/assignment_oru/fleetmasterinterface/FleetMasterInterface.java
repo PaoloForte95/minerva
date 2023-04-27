@@ -28,6 +28,7 @@ public class FleetMasterInterface extends AbstractFleetMasterInterface {
 	 * @param height Number of rows of the map (>= 1) if dynamic sizing is not enabled.
 	 * @param dynamic_size If <code>true</code>, it allows to store only the bounding box containing each path.
 	 * @param debug If <code>true</code>, it enables writing to screen debugging info.
+	 * @param vehicle_type the type of the vehicle 
 	 */
 	public FleetMasterInterface(double origin_x, double origin_y, double origin_theta, double resolution, long width, long height, boolean dynamic_size, boolean debug) {
 		super(origin_x, origin_y, origin_theta, Math.min(Math.max(resolution, 0.01), 1.), Math.max(width,1),  Math.max(height,1), dynamic_size, debug);
@@ -43,6 +44,7 @@ public class FleetMasterInterface extends AbstractFleetMasterInterface {
 	 * @param resolution The resolution of the map (in meters/cell,  0.1 <= resolution <= 1). It is assumed this parameter to be global among the fleet.
 	 * @param width Number of columns of the map (>= 1) if dynamic sizing is not enabled.
 	 * @param height Number of rows of the map (>= 1) if dynamic sizing is not enabled. Resolution is automatically constrained in 0.01 <= resolution <= 1.
+	 * @param vehicle_type the type of the vehicle
 	 */
 	public FleetMasterInterface(double origin_x, double origin_y, double origin_theta, double resolution, long width, long height, boolean dynamic_size) {
 		this(origin_x, origin_y, origin_theta, Math.min(Math.max(resolution, 0.01), 1.), width,  height, dynamic_size, false);

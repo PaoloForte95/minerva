@@ -13,7 +13,7 @@ public abstract class robotType {
 	 * @author pofe
 	 *
 	 */
-	public static enum ROBOT_TYPE {MOBILE_ROBOT, FORKLIFT,EXCAVATOR, WHEEL_LOADER, HAULER, BULLDOZER} ;
+	public static enum ROBOT_TYPE {ARTICULATED, CARLIKE, FORKLIFT, EXCAVATOR} ;
 	
 	
 }

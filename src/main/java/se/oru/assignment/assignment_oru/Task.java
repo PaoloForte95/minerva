@@ -28,7 +28,12 @@ public class Task {
 	protected boolean priority = false;
 	protected int robotRequired = 1;
 	
-	
+	/**
+	 * Create a simple task composed by an ID and the robot that can execute it.
+	 */
+	public Task (int taskID, ROBOT_TYPE ... robotTypes) {
+		this(taskID, -1, "", "", null, null, robotTypes);
+	}
 	
 	/**
  	 * Constructor. Generate a Task with a Starting Pose and an Ending Pose; the type is used to evaluate which 

@@ -1,13 +1,11 @@
 package se.oru.assignment.assignment_oru.methods;
 
-import se.oru.assignment.assignment_oru.AbstractOptimizationProblem;
-import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeCoordinator;
+import se.oru.assignment.assignment_oru.ConstraintOptimizationProblem;
+import se.oru.assignment.assignment_oru.LinearOptimizationProblem;
+
 
 import java.util.logging.Logger;
 
-import org.metacsp.utility.logging.MetaCSPLogging;
-
-import com.google.ortools.linearsolver.*;
 
 /**
  * This class provides a method to compute an optimal task assignment for a fleet of robots and a set of tasks . 
@@ -19,14 +17,21 @@ import com.google.ortools.linearsolver.*;
 public abstract class AbstractOptimizationAlgorithm  {
 
 	protected double timeOut = Double.POSITIVE_INFINITY;
-	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
+	protected long computationalTime = 0;
+	protected double objectiveOptimalValue = 100000000;
+	protected int solutionsEvaluated = 0;
+
+	//Logger 
+	protected Logger logger;	
+	
+
 	/**
-	 * Set the timeOut for the optimization algorithm (in minutes). The algorithm will search a solution until this time.
+	 * Set the max computational time for the optimization algorithm (in minutes). The algorithm will search a solution until this time.
 	 * Use number from 0.1 (10 seconds) to 0.6 (60 seconds) for seconds
 	 * @param minutes -> timeout value in minutes
 	 * 
 	 */
-	public void setTimeOutinMinutes(double minutes) {
+	public void setMaxComputationalTime(double minutes) {
 		if(timeOut < 0) {
 			throw new Error("Timeout cannot be negative!");
 		}
@@ -39,14 +44,18 @@ public abstract class AbstractOptimizationAlgorithm  {
 
 	}
 
-
 	/**
 	 * Get the timeout for this optimization algorithm.
 	 * @return The timeout set in minutes. 
 	 */
 
-	public double getTimeout() {
+	public double getMaxComputationalTime() {
 		return this.timeOut;
+	}
+
+
+	public long getcomputationalTime(){
+		return this.computationalTime;
 	}
 
 
@@ -55,7 +64,14 @@ public abstract class AbstractOptimizationAlgorithm  {
 	 * @param oap -> An optimization problem defined with {@link #buildOptimizationProblem}
 	 * @return The optimal Assignment
 	 */	
-	public abstract double [][][] solveOptimizationProblem(AbstractOptimizationProblem oap);
+	public abstract int [][][] solveOptimizationProblem(LinearOptimizationProblem oap);
+
+	/** 
+	 * Solve the optimization problem given as input
+	 * @param oap -> An optimization problem defined with {@link #buildOptimizationProblem}
+	 * @return The optimal Assignment
+	 */	
+	public abstract int [][][] solveOptimizationProblem(ConstraintOptimizationProblem oap);
 
 }
 
