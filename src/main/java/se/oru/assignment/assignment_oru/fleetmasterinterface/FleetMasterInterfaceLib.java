@@ -20,7 +20,7 @@ public interface FleetMasterInterfaceLib extends Library {
 			
 	
 	
-	PointerByReference init(FleetGridParams gridParams);
+	PointerByReference init(EnvelopeGridParams gridParams);
 	
 	void setTrajectoryParams(PointerByReference p, int robotID, TrajParams trajParams, String debugPrefix );
 
@@ -48,14 +48,18 @@ public interface FleetMasterInterfaceLib extends Library {
     
 
 	
-	public static class PathPose extends Structure {
-		public static class ByReference extends PathPose implements Structure.ByReference {}
-
+	public  class PathPose extends Structure {
+		
 		public double x;
 		public double y;
 		public double theta;
 		
 		public PathPose() {}
+		public PathPose(double x, double y, double theta) {
+			this.x = x; 
+			this.y = y;
+			this.theta = theta;
+		}
 		public PathPose(Pointer p) {
 			super(p);
 		}
@@ -65,22 +69,6 @@ public interface FleetMasterInterfaceLib extends Library {
 		}
 	}
 
-	public static class Path extends Structure {
-		public static class ByReference extends Path implements Structure.ByReference {}
-
-		public PathPose[] poses ;
-		public double[] curvatures ;
-		
-		public Path() {}
-		public Path(Pointer p) {
-			super(p);
-		}
-		@Override
-		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] {"poses", "curvatures"});
-		}
-	}
-	
 	public static class VehicleModel2d extends Structure {
 		public static class ByReference extends VehicleModel2d implements Structure.ByReference {}
 		
@@ -98,30 +86,38 @@ public interface FleetMasterInterfaceLib extends Library {
 	}
 	
 
-	public static class FleetGridParams extends Structure {
-		public static class ByReference extends FleetGridParams implements Structure.ByReference {}
-
-		public PathPose origin;
-		public double resolution;
-		public NativeLong width;
-		public NativeLong height;
-		public boolean dynamic_size;
-		public boolean debug;
-		public int robotId;
+	public class EnvelopeGridParams extends Structure  {
 		
-		public FleetGridParams() {}
-		public FleetGridParams(Pointer p) {
+		public Pointer derivedClass1;  //Necessary to map correctly the field
+		public Pointer derivedClass2;  //Necessary to map correctly the field
+		public PathPose origin = new PathPose(0,0,0);
+		public double resolution = 0.1;
+		public NativeLong width = new NativeLong(100);
+		public NativeLong height = new NativeLong(100);
+		public boolean dynamic_size = false;
+		public int robotID = -1;
+		public boolean debug = false;
+		
+		
+		public EnvelopeGridParams() {}
+		public EnvelopeGridParams(Pointer p) {
 			super(p);
 		}
 		@Override
 		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] {"origin", "resolution", "width", "height", "dynamic_size", "debug", "robotId"});
+			List<String> fields = new ArrayList<String>();
+			for (Field field : EnvelopeGridParams.class.getFields()){
+				String fieldName =  field.getName();
+				if(!fieldName.contains("ALIGN_DEFAULT") && !fieldName.contains("ALIGN_GNUC") && !fieldName.contains("ALIGN_MSVC") && !fieldName.contains("ALIGN_NONE") ){
+					fields.add(fieldName);
+				}
+			}
+			return fields;
 		}
 	}
 	
 	public static class TrajParams extends Structure {
-		public static class ByReference extends TrajParams implements Structure.ByReference {}
-		public double fakeField; //FIXME without this field the mapping is not correct. Cannot find what field it is in c++.
+		public double derivedClass1; //Necessary to map correctly the field
 		public int type = 1;
 		public double maxVel = 1.0;
 		public double maxVelRev = maxVel;

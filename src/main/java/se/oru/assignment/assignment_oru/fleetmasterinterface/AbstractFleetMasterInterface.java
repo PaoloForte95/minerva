@@ -23,7 +23,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 import aima.core.util.datastructure.Pair;
 
-import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.FleetGridParams;
+import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.EnvelopeGridParams;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.PathPose;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.TrajParams;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.VehicleModel2d;
@@ -32,7 +32,7 @@ import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfac
 public abstract class AbstractFleetMasterInterface {
 	protected HashMap<Integer, Long> paths = null; //teID (or this pathID), fleetmaster pathID 
 	protected HashMap<Integer, TrajParams> trajParams = null; //robotID, trajectory parameters
-	protected FleetGridParams gridParams = null;
+	protected EnvelopeGridParams gridParams = null;
 	//protected VehicleModelParam vehicleParam = null;
 	protected PointerByReference p = null;
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(FleetMasterInterface.class);
@@ -59,7 +59,7 @@ public abstract class AbstractFleetMasterInterface {
 	static {
 		//If the library is located in a custom location, use the line below
 		//NativeLibrary.addSearchPath("eclnav_fleet", "FleetMasterInterface");
-		INSTANCE = Native.load("eclnav_fleet", FleetMasterInterfaceLib.class);
+		INSTANCE = Native.load("eclnav_assignment", FleetMasterInterfaceLib.class);
 	}
 	
 	/**
@@ -75,18 +75,8 @@ public abstract class AbstractFleetMasterInterface {
 	 * @param debug If <code>true</code>, it enables writing to screen debugging info.
 	 */
 	public AbstractFleetMasterInterface(double origin_x, double origin_y, double origin_theta, double resolution, long width, long height, boolean dynamic_size, boolean debug) {
-		DEFAULT_TRAJ_PARAMS = new TrajParams();
-		//DEFAULT_TRAJ_PARAMS.maxVel = 1.;
-	   // DEFAULT_TRAJ_PARAMS.maxVelRev = 1.;
-	    ///DEFAULT_TRAJ_PARAMS.useSteerDriveVel = true;
-	    //DEFAULT_TRAJ_PARAMS.maxRotationalVel = 1.;	
-	    //DEFAULT_TRAJ_PARAMS.maxRotationalVelRev = 1.;
-	    //DEFAULT_TRAJ_PARAMS.maxSteeringAngleVel = 1.;
-	    ///DEFAULT_TRAJ_PARAMS.maxAcc = 1.;
-	    //DEFAULT_TRAJ_PARAMS.maxRotationalAcc = 1.;
-	    //DEFAULT_TRAJ_PARAMS.maxSteeringAngleAcc = 1.;
-	    
-		gridParams = new FleetGridParams();
+
+		gridParams = new EnvelopeGridParams();
 		gridParams.origin.x = origin_x;
 		gridParams.origin.y = origin_y;
 		gridParams.origin.theta = origin_theta;
@@ -95,14 +85,9 @@ public abstract class AbstractFleetMasterInterface {
 		gridParams.height = new NativeLong(height);
 		gridParams.dynamic_size = dynamic_size;
 		gridParams.debug = debug;
-		
-		//vehicleParam = new VehicleModelParam();
-		//vehicleParam.vehicle_model_2d_type = VehicleModel2dType.Articulated;
-		
-	    
+		gridParams.robotID = 1;
 		this.paths = new HashMap<Integer, Long>();
 		this.trajParams = new HashMap<Integer, TrajParams>();
-
 	};
 	
 	/**
