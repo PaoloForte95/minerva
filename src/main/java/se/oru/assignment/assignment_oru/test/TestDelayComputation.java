@@ -17,7 +17,7 @@ public class TestDelayComputation {
 	protected boolean propagateDelays = false;
 
 	public static void main(String[] args) {
-		FleetMasterInterface fleetMasterInterface = new FleetMasterInterface(0., 0., 0., 0.05, 1000, 1000, true, false);
+		FleetMasterInterface fleetMasterInterface = new FleetMasterInterface(0., 0., 0., 0.05, 1000, 1000, false, false);
 		int robotID1 = 1;
 		int robotID2 = 2;
 		double maxVelx = 4;
