@@ -8,25 +8,27 @@ import se.oru.coordination.coordination_oru.ForwardModel;
 
 public class Robot {
 	
-	private int robotID;
-	 private ROBOT_TYPE robotType;
-	 private Coordinate[] footprint;
-	 private ForwardModel fm = null;
+	 protected int robotID;
+	 protected ROBOT_TYPE robotType;
+	 protected Coordinate[] footprint;
+	 protected ForwardModel fm = null;
 	 
+
+	 // DEFAULT VARIABLES
 	 /**
 		 * The default footprint used for robots if none is specified.
 		 * NOTE: coordinates in footprints must be given in in CCW or CW order. 
 	*/
-	private static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
+	protected static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
 			 	new Coordinate(-1.0,0.5),
 				new Coordinate(1.0,0.5),
 				new Coordinate(1.0,-0.5),
 				new Coordinate(-1.0,-0.5)
 	};
 
-	private static ROBOT_TYPE DEFAULT_TYPE = ROBOT_TYPE.CARLIKE;
+	protected static ROBOT_TYPE DEFAULT_TYPE = ROBOT_TYPE.CARLIKE;
 		 
-	private static ConstantAccelerationForwardModel DEFAULT_FORWARD_MODEL = new ConstantAccelerationForwardModel(1, 1, 1000.0, 1000, 30);
+	protected static ConstantAccelerationForwardModel DEFAULT_FORWARD_MODEL = new ConstantAccelerationForwardModel(1, 1, 1000.0, 1000, 30);
 	 
 	
 	/**
