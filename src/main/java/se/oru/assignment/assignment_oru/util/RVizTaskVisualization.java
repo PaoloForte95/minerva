@@ -25,7 +25,6 @@ import javax.imageio.ImageIO;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.ros.RosCore;
@@ -42,10 +41,8 @@ import org.ros.node.topic.Publisher;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import geometry_msgs.Transform;
 import nav_msgs.OccupancyGrid;
 import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.util.FleetVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import com.vividsolutions.jts.geom.Polygon;
 //import org.ros.visualization_msgs.MarkerArray;

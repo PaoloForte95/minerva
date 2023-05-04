@@ -27,17 +27,13 @@ import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope.SpatialEnvelope
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.util.AffineTransformation;
 
 import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.BrowserVisualizationServer;
 import se.oru.coordination.coordination_oru.util.BrowserVisualizationSocket;
 import se.oru.coordination.coordination_oru.util.BrowserVisualizationServlet;
-import se.oru.coordination.coordination_oru.util.FleetVisualization;
 
 
 public class BrowserTaskVisualization  implements TaskFleetVisualization {
