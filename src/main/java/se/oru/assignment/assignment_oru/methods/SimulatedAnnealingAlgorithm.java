@@ -5,10 +5,10 @@ import java.util.Random;
 
 import org.metacsp.utility.logging.MetaCSPLogging;
 
-import se.oru.assignment.assignment_oru.ConstraintOptimizationProblem;
-import se.oru.assignment.assignment_oru.LinearOptimizationProblem;
-
 import com.google.ortools.linearsolver.*;
+
+import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 
 
 

@@ -1,4 +1,4 @@
-package se.oru.assignment.assignment_oru;
+package se.oru.assignment.assignment_oru.problems;
 
 
 
@@ -16,6 +16,8 @@ import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
 
+import se.oru.assignment.assignment_oru.Robot;
+import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 
 

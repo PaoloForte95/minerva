@@ -3,10 +3,10 @@ package se.oru.assignment.assignment_oru.test;
 
 import java.util.Calendar;
 
-import se.oru.assignment.assignment_oru.ConstraintOptimizationProblem;
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
+import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
 import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 

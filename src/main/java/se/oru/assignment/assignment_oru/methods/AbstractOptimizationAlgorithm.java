@@ -1,10 +1,9 @@
 package se.oru.assignment.assignment_oru.methods;
 
-import se.oru.assignment.assignment_oru.ConstraintOptimizationProblem;
-import se.oru.assignment.assignment_oru.LinearOptimizationProblem;
-
-
 import java.util.logging.Logger;
+
+import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 
 
 /**

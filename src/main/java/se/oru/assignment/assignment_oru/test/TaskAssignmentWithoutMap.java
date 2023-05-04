@@ -7,11 +7,11 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import com.google.ortools.Loader;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import se.oru.assignment.assignment_oru.OptimizationProblem;
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SimulatedAnnealingAlgorithm;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
+import se.oru.assignment.assignment_oru.problems.OptimizationProblem;
 import se.oru.assignment.assignment_oru.util.BrowserTaskVisualization;
 import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;

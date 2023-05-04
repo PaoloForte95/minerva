@@ -5,19 +5,18 @@ import java.util.Calendar;
 
 import org.metacsp.utility.logging.MetaCSPLogging;
 
-import se.oru.assignment.assignment_oru.AbstractOptimizationProblem;
-import se.oru.assignment.assignment_oru.ConstraintOptimizationProblem;
-import se.oru.assignment.assignment_oru.LinearOptimizationProblem;
-
 import com.google.ortools.linearsolver.*;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 
 import aima.core.util.datastructure.Pair;
+import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 
 /**
- * This class provide a systematic algorithm to solve an optimization problem defined with the class {@link se.oru.assignment.assignment_oru.AbstractOptimizationProblem#buildOptimizationProblem}.
+ * This class provide a systematic algorithm to solve an optimization problem defined with the class {@link se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem#buildOptimizationProblem}.
  * 
  * @author pofe
  *
@@ -101,7 +100,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 	 * for each solution (i.e. a sub-optimal assignment) evaluates the cost of F function. Each new sub-optimal solution (i.e. with the cost less that then previous sub-optimal one)
 	 * introduces a new constraint on cost for the next solutions. This constraint prunes all solutions that have a cost considering only B higher that the sub-optimal(that consider B + F) 
 	 * since none of these solutions can be the optimal one.
-	 * @param oap -> an optimization problem defined with {@link se.oru.assignment.assignment_oru.AbstractOptimizationProblem#buildOptimizationProblem}
+	 * @param oap -> an optimization problem defined with {@link se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem#buildOptimizationProblem}
 
 	 * @return An Optimal Assignment that minimize the objective function
 	 */	

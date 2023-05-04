@@ -1,4 +1,4 @@
-package se.oru.assignment.assignment_oru;
+package se.oru.assignment.assignment_oru.problems;
 
 
 import java.util.ArrayList;
@@ -9,6 +9,8 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.*;
 
+import se.oru.assignment.assignment_oru.Robot;
+import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 
 

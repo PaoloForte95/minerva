@@ -1,4 +1,4 @@
-package se.oru.assignment.assignment_oru;
+package se.oru.assignment.assignment_oru.problems;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,7 +26,10 @@ import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.RobotReport;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.util.Missions;
-
+import se.oru.assignment.assignment_oru.ComputePathCallback;
+import se.oru.assignment.assignment_oru.IndexedDelay;
+import se.oru.assignment.assignment_oru.Robot;
+import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;

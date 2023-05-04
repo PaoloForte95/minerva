@@ -1,4 +1,4 @@
-package se.oru.assignment.assignment_oru;
+package se.oru.assignment.assignment_oru.problems;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -11,6 +11,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import se.oru.assignment.assignment_oru.ComputePathCallback;
+import se.oru.assignment.assignment_oru.Robot;
+import se.oru.assignment.assignment_oru.Task;
+import se.oru.assignment.assignment_oru.TaskAssignmentCallback;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
 import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
