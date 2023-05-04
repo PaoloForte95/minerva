@@ -86,6 +86,19 @@ dependencies {
 
 }
 
+java {
+	withSourcesJar()
+  //withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+		from components.java
+        }
+    }
+}
+
 run {
     if (project.hasProperty("demo")) {
         args(demo)
