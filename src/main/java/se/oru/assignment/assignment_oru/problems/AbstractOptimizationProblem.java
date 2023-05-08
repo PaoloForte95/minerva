@@ -87,7 +87,7 @@ public abstract class AbstractOptimizationProblem{
 		protected int alternativePaths;
 		protected int dummyRobot;
 		protected int dummyTask;
-		protected ArrayList <Robot> robots;
+		protected List <Robot> robots ;
 		protected ArrayList <Task> taskQueue;
 		protected ArrayList <Task> taskPosponedQueue;	
 		protected ArrayList <Integer> realRobotsIDs;  //Set of real robots
