@@ -46,7 +46,7 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 	 * This class used the coordination_oru interface to coordinate the robots while driving.
  * @author pofe
  */
-public class OptimizationProblem extends LinearOptimizationProblem{
+public final class OptimizationProblem extends LinearOptimizationProblem{
 	 
 		//Weights for the Interference free-cost functions
 		private double pathLengthWeight = 1;
