@@ -12,6 +12,7 @@ public class Robot {
 	 protected ROBOT_TYPE robotType;
 	 protected Coordinate[] footprint;
 	 protected ForwardModel fm = null;
+	 protected double capacity;
 	 
 
 	 // DEFAULT VARIABLES
@@ -43,6 +44,7 @@ public class Robot {
 		 this.robotType = robotType;
 		 this.footprint = footprint;
 		 this.fm = fm;	
+		 this.capacity = 1.0;
 	 }
 	 /**
 	  * Create a new {@link Robot}; footprint is set to default footprint and default type is = 1
@@ -103,7 +105,15 @@ public class Robot {
 		 this.fm= fm;
 	 }
 
-	public String toString() {
+	 public void setCapacity(double capacity){
+		this.capacity = capacity;
+	 }
+
+	 public double getCapacity(){
+		return this.capacity;
+	 }
+
+	 public String toString() {
 		return "Robot " + robotID +" of type " + robotType ; 
 	}
 }
