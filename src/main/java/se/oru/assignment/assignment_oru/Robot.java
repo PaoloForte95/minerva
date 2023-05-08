@@ -2,7 +2,8 @@ package se.oru.assignment.assignment_oru;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
+import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
+import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.ForwardModel;
 
@@ -27,7 +28,7 @@ public class Robot {
 				new Coordinate(-1.0,-0.5)
 	};
 
-	protected static ROBOT_TYPE DEFAULT_TYPE = ROBOT_TYPE.CARLIKE;
+	protected static ROBOT_TYPE DEFAULT_TYPE = MOBILE_ROBOT.CARLIKE;
 		 
 	protected static ConstantAccelerationForwardModel DEFAULT_FORWARD_MODEL = new ConstantAccelerationForwardModel(1, 1, 1000.0, 1000, 30);
 	 

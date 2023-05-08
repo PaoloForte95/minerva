@@ -33,6 +33,7 @@ import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
+import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 
 
 
@@ -128,16 +129,14 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		public boolean addRobot(Robot robot) {
 			int robotID = robot.getRobotID();
 			fleetMasterInterface.setTrajParams(robotID, coordinator.getRobotMaxVelocity(robotID), coordinator.getRobotMaxAcceleration(robotID));
-			switch(robot.getType()){
-				case ARTICULATED:
-					fleetMasterInterface.setRobotType(robotID, 1);
-					break;
-				case CARLIKE:
-					fleetMasterInterface.setRobotType(robotID, 2);
-					break;
-				default:
-					metaCSPLogger.severe(("Other cases are not supported yet. Please select between ARTICULATED and CARLIKE"));
-					break;
+			if(robot.getType() == MOBILE_ROBOT.ARTICULATED){
+				fleetMasterInterface.setRobotType(robotID, 1);
+			}
+			else if(robot.getType() == MOBILE_ROBOT.CARLIKE){
+				fleetMasterInterface.setRobotType(robotID, 2);
+			}
+			else {
+				metaCSPLogger.severe(("Other cases are not supported yet. Please select between ARTICULATED and CARLIKE"));
 			}
 			return super.addRobot(robot);
 		}

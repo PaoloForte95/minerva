@@ -7,7 +7,8 @@ import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
 import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
-import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
+import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
+import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 
 
@@ -46,7 +47,7 @@ public class TestConstraintOptimization {
 		}
 
 		for(int j=0; j < numTasks; j++){
-			Task tk = new Task(j+1,ROBOT_TYPE.CARLIKE);
+			Task tk = new Task(j+1,MOBILE_ROBOT.CARLIKE);
 			problem.addTask(tk);
 
 		}

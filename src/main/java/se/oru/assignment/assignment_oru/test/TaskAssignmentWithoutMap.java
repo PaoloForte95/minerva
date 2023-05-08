@@ -13,7 +13,8 @@ import se.oru.assignment.assignment_oru.methods.SimulatedAnnealingAlgorithm;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
 import se.oru.assignment.assignment_oru.problems.OptimizationProblem;
 import se.oru.assignment.assignment_oru.util.BrowserTaskVisualization;
-import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
+import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
+import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.CriticalSection;
 import se.oru.coordination.coordination_oru.NetworkConfiguration;
@@ -142,12 +143,12 @@ public class TaskAssignmentWithoutMap {
 		//Pose goalPoseRobot4 = new Pose(48.0,27.0,0.0);
 		//Pose goalPoseRobot5 = new Pose(52.0,6.0,0.0);
 
-		Task task1 = new Task(1,startPoseGoal1,goalPoseGoal1,ROBOT_TYPE.CARLIKE);
-		Task task2 = new Task(2,startPoseGoal2,goalPoseGoal2,ROBOT_TYPE.CARLIKE);
-		Task task3 = new Task(3,startPoseGoal3,goalPoseGoal3,ROBOT_TYPE.CARLIKE);
+		Task task1 = new Task(1,startPoseGoal1,goalPoseGoal1,MOBILE_ROBOT.CARLIKE);
+		Task task2 = new Task(2,startPoseGoal2,goalPoseGoal2,MOBILE_ROBOT.CARLIKE);
+		Task task3 = new Task(3,startPoseGoal3,goalPoseGoal3,MOBILE_ROBOT.CARLIKE);
 
-		Task task4 = new Task(4,startPoseGoal4,goalPoseGoal4,ROBOT_TYPE.CARLIKE);
-		Task task5 = new Task(5,startPoseGoal5,goalPoseGoal5,ROBOT_TYPE.CARLIKE);
+		Task task4 = new Task(4,startPoseGoal4,goalPoseGoal4,MOBILE_ROBOT.CARLIKE);
+		Task task5 = new Task(5,startPoseGoal5,goalPoseGoal5,MOBILE_ROBOT.CARLIKE);
 		
 		//Task task6 = new Task(6,startPoseGoal6,goalPoseGoal6,1);
 	
@@ -220,11 +221,11 @@ public class TaskAssignmentWithoutMap {
 		assignmentProblem.setCostFunctionsWeight(1.0, 0.0, 0.0);
 		
 
-		Robot rb1 = new Robot(1,ROBOT_TYPE.CARLIKE);
-		Robot rb2 = new Robot(2,ROBOT_TYPE.CARLIKE);
-		Robot rb3 = new Robot(3,ROBOT_TYPE.CARLIKE);
-		Robot rb4 = new Robot(4,ROBOT_TYPE.CARLIKE);
-		Robot rb5 = new Robot(5,ROBOT_TYPE.CARLIKE);
+		Robot rb1 = new Robot(1,MOBILE_ROBOT.CARLIKE);
+		Robot rb2 = new Robot(2,MOBILE_ROBOT.CARLIKE);
+		Robot rb3 = new Robot(3,MOBILE_ROBOT.CARLIKE);
+		Robot rb4 = new Robot(4,MOBILE_ROBOT.CARLIKE);
+		Robot rb5 = new Robot(5,MOBILE_ROBOT.CARLIKE);
 		
 		assignmentProblem.addRobot(rb1);
 		assignmentProblem.addRobot(rb2);

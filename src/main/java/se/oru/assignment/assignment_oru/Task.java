@@ -8,7 +8,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 
-import se.oru.assignment.assignment_oru.util.robotType.ROBOT_TYPE;
+import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.util.Missions;
 
