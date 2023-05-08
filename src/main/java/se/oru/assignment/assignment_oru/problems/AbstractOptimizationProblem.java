@@ -126,6 +126,11 @@ public abstract class AbstractOptimizationProblem{
 		 */
 		public abstract int[][][] getAssignmentMatrix();
 
+
+		protected List<Robot> getRobots(){
+			return this.robots;
+		}
+
 		/**
 		 * Get the robot type of the specific robot.
 		 * @param robotID -> the ID of the robot
@@ -133,6 +138,7 @@ public abstract class AbstractOptimizationProblem{
 		 */
 		
 		public ROBOT_TYPE getRobotType(int robotID){
+			List<Robot> robots = getRobots();
 			for(Robot rb : robots){
 				if(rb.getRobotID() == robotID){
 					return robots.get(robots.indexOf(rb)).getType();
@@ -357,6 +363,7 @@ public abstract class AbstractOptimizationProblem{
 			metaCSPLogger.severe("No robot to add. Please give a correct robot.");
 			throw new Error("Cannot add the robot");
 		}
+		realRobotsIDs.add(robot.getRobotID());
 		metaCSPLogger.info(robot.toString() +  " has been added" );
 		return robots.add(robot);
 	}

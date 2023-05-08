@@ -276,9 +276,6 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
-		for(Robot rb: robots){
-			realRobotsIDs.add(rb.getRobotID());
-		}
 		model = createOptimizationProblem();
 		solver = new CpSolver();
 		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);

@@ -340,9 +340,6 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
 	
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
-		for(Robot rb: robots){
-			realRobotsIDs.add(rb.getRobotID());
-		}
 		optimizationModel = createOptimizationProblem();
 		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
 		metaCSPLogger.info("Time required to find the solution: " + optimizationSolver.getcomputationalTime() + " s");
