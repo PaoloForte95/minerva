@@ -117,6 +117,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 
 		//Initialize the optimal assignment and the cost associated to it
 		int [][][] optimalAssignmentMatrix = new int[numRobotAug][numTaskAug][maxNumPaths];
+		double currentOptimalCost = objectiveOptimalValue;
 		//Solve the optimization problem
 		MPSolver.ResultStatus resultStatus = MPSolver.ResultStatus.NOT_SOLVED;
 
@@ -133,8 +134,8 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 			double costofAssignment = costs.getFirst();
 			double costofAssignmentForConstraint = costs.getSecond();
 			//Compare actual solution and optimal solution finds so far
-			if (costofAssignment < objectiveOptimalValue && resultStatus != MPSolver.ResultStatus.INFEASIBLE) {
-				objectiveOptimalValue = costofAssignment;
+			if (costofAssignment < currentOptimalCost && resultStatus != MPSolver.ResultStatus.INFEASIBLE) {
+				currentOptimalCost = costofAssignment;
 				optimalAssignmentMatrix = copyData(AssignmentMatrix);
 			}
 			//Add the constraint on cost for next solution
@@ -146,7 +147,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 		}
 
 		long timeFinal = Calendar.getInstance().getTimeInMillis();
-		computationalTime = timeFinal- initialTime;
+		computationalTime = (timeFinal- initialTime)/1000;
 		logger.info("Number of solution evaluated: " + solutionsEvaluated);
 		//Return the Optimal Assignment Matrix 
 		return  optimalAssignmentMatrix;    
