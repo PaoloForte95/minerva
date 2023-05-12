@@ -17,7 +17,6 @@ import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.TaskAssignmentCallback;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
-import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.assignment.assignment_oru.util.StringUtils;
 
