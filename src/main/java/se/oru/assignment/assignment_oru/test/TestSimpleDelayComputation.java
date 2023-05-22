@@ -1,5 +1,7 @@
 package se.oru.assignment.assignment_oru.test;
 
+import java.util.ArrayList;
+
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
 import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
@@ -28,7 +30,13 @@ public class TestSimpleDelayComputation {
 		Pose pg1 = new Pose(7, 0.0, 0);
 		Pose pg2 = new Pose(0, 5, Math.PI/2);
 
-		fleetMasterInterface.computeTimeDelayWStartandGoal(ps1, pg1, ps2,pg2, robotID1, robotID2);
+		ArrayList<Pose> goals1 = new ArrayList<Pose>();
+		goals1.add(pg1);
+
+		ArrayList<Pose> goals2 = new ArrayList<Pose>();
+		goals2.add(pg2);
+
+		fleetMasterInterface.computeTimeDelay(ps1, goals1, ps2,goals2, robotID1, robotID2);
 		//System.out.println("Delay if robot" + robotID1 +  " go first: "+ delays.getFirst());
 		//System.out.println("Delay if robot" + robotID2 +  " go first: "+ delays.getSecond());
 	}

@@ -194,7 +194,7 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 
 		protected Pair<Double,Double> estimateTimeToCompletionDelays(int robot1ID,PoseSteering[] pss1, int robot2ID,PoseSteering[] pss2){
 			if (this.fleetMasterInterface != null){
-				return fleetMasterInterface.computeTimeDelay(pss1, pss2, robot1ID, robot2ID);
+				return fleetMasterInterface.computeTimeDelayWPath(pss1, pss2, robot1ID, robot2ID);
 			}
 			return new Pair<Double, Double> (Double.NaN, Double.NaN);
 		}

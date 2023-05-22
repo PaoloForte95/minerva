@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 
+import aima.core.util.datastructure.Pair;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
 
@@ -29,13 +30,13 @@ public class TestDelayComputation {
 		fleetMasterInterface.setRobotType(robotID1, 1);
 		fleetMasterInterface.setRobotType(robotID2, 1);
 
-        Pose startPoseRobot1 = new Pose(18.0,13.0,Math.PI/2);
-        Pose startPoseGoal1 = new Pose(22.0,25.0,Math.PI/2);
-		Pose goalPoseGoal1 = new Pose(22.0,35.0,Math.PI/2);
+        Pose startPoseRobot1 = new Pose(9.0,19.0,0.0);
+        Pose startPoseGoal1 = new Pose(13.0,29.0,Math.PI/2);
+		Pose goalPoseGoal1 = new Pose(36.0,52.0,Math.PI/2);
         
-        Pose startPoseRobot2 = new Pose(21.0,13.0,Math.PI/2);
-		Pose startPoseGoal2 = new Pose(19.0,25.0,Math.PI/2);
-		Pose goalPoseGoal2 = new Pose(19.0,35.0,Math.PI/2);
+        Pose startPoseRobot2 = new Pose(9.0,0.0, 0.0);
+		Pose startPoseGoal2 = new Pose(29.0,32.0,Math.PI/2);
+		Pose goalPoseGoal2 = new Pose(25.0,52.0,Math.PI/2);
 
 
         ArrayList<Pose> goals1 = new ArrayList<Pose>();
@@ -46,9 +47,12 @@ public class TestDelayComputation {
 		goals2.add(startPoseGoal2);
 		goals2.add(goalPoseGoal2);
 
-		PoseSteering[] path1 = fleetMasterInterface.calculatePath(robotID1, startPoseRobot1, goals1, 0.3);
-        PoseSteering[] path2 = fleetMasterInterface.calculatePath(robotID2, startPoseRobot2, goals2, 0.3);
-        fleetMasterInterface.computeTimeDelay(path1, path2, robotID1, robotID2);
+		Pair<PoseSteering[], Double[]> path1 = fleetMasterInterface.calculatePath(robotID1, startPoseRobot1, goals1, 0.3);
+        Pair<PoseSteering[], Double[]> path2 = fleetMasterInterface.calculatePath(robotID2, startPoseRobot2, goals2, 0.3);
+        fleetMasterInterface.computeTimeDelayWPath(path1.getFirst(), path1.getSecond(), path2.getFirst(), path2.getSecond(), robotID1, robotID2);
+		for(int i=0; i< path1.getSecond().length; i++){
+		}
+		fleetMasterInterface.computeTimeDelay(path1.getFirst()[0].getPose(), goals1, path2.getFirst()[0].getPose(), goals2, robotID1, robotID2);
 
 	}
 

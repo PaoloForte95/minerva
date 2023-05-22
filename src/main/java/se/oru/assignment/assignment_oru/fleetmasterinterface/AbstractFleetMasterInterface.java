@@ -1,9 +1,11 @@
 package se.oru.assignment.assignment_oru.fleetmasterinterface;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
@@ -155,7 +157,7 @@ public abstract class AbstractFleetMasterInterface {
 	}
 
 
-	public Pair<Double,Double> computeTimeDelay(PoseSteering[] path1, PoseSteering[] path2, int robotID1, int robotID2 ){
+	public Pair<Double,Double> computeTimeDelayWPath(PoseSteering[] path1, Double[] curvs1, PoseSteering[] path2, Double[] curvs2, int robotID1, int robotID2 ){
 		PathPose[] pi1 = (PathPose[])new PathPose().toArray(path1.length);
 		double[] steering = new double[path1.length];
 		for (int i = 0; i < path1.length; i++) {
@@ -176,54 +178,90 @@ public abstract class AbstractFleetMasterInterface {
 
 		DoubleByReference delayTe1 = new DoubleByReference();
 		DoubleByReference delayTe2 = new DoubleByReference();
-		INSTANCE.computeTimeDelay(p, pi1,  path1.length, pi2, path2.length, robotID1, robotID2, delayTe1,delayTe2);
+		INSTANCE.computeTimeDelayWPath(p, pi1,  path1.length, ArrayUtils.toPrimitive(curvs1), pi2, path2.length, ArrayUtils.toPrimitive(curvs2), robotID1, robotID2, delayTe1,delayTe2);
 		return new Pair<Double, Double>(delayTe1.getValue(), delayTe2.getValue());
 	}
 
-	public Pair<Double,Double> computeTimeDelayWStartandGoal(Pose start1, Pose goal1, Pose start2, Pose goal2, int robotID1, int robotID2 ){
+	public Pair<Double,Double> computeTimeDelayWPath(PoseSteering[] path1, PoseSteering[] path2, int robotID1, int robotID2 ){
+		Double[] curvs1 = new Double[path1.length];
+		Double[] curvs2 = new Double[path2.length];
+
+		Arrays.fill(curvs1, 0);
+		Arrays.fill(curvs2, 0);
+
+		return computeTimeDelayWPath(path1,curvs1,path2,curvs2,robotID1, robotID2);
+	}
+
+
+	public Pair<Double,Double> computeTimeDelay(Pose start1, ArrayList<Pose> goals1, Pose start2, ArrayList<Pose> goals2, int robotID1, int robotID2 ){
 		
 		PathPose ps1 = new PathPose();
 		ps1.x = start1.getX();
 		ps1.y = start1.getY();
 		ps1.theta = start1.getTheta();
-		PathPose pg1 = new PathPose();
-		pg1.x = goal1.getX();
-		pg1.y = goal1.getY();
-		pg1.theta = goal1.getTheta();
+		PathPose[] pgs1 = (PathPose[])new PathPose().toArray(goals1.size());
+		for (int i = 0; i < goals1.size(); i++) {
+			pgs1[i].x = goals1.get(i).getX();
+			pgs1[i].y = goals1.get(i).getY();
+			pgs1[i].theta = goals1.get(i).getTheta();
+		}
 
 		PathPose ps2 = new PathPose();
+		PathPose[] pgs2 = (PathPose[])new PathPose().toArray(goals2.size());
 		ps2.x = start2.getX();
 		ps2.y = start2.getY();
 		ps2.theta = start2.getTheta();
-		PathPose pg2 = new PathPose();
-		pg2.x = goal2.getX();
-		pg2.y = goal2.getY();
-		pg2.theta = goal2.getTheta();
-
+		for (int i = 0; i < goals2.size(); i++) {
+			pgs2[i].x = goals2.get(i).getX();
+			pgs2[i].y = goals2.get(i).getY();
+			pgs2[i].theta = goals2.get(i).getTheta();
+		}
 		DoubleByReference delayTe1 = new DoubleByReference();
 		DoubleByReference delayTe2 = new DoubleByReference();
-		INSTANCE.computeTimeDelayWStartandGoal(p, ps1,pg1, ps2,pg2, robotID1, robotID2, delayTe1,delayTe2);
+
+		INSTANCE.computeTimeDelay(p, ps1, pgs1, pgs1.length, ps2, pgs2, pgs2.length, robotID1, robotID2, delayTe1,delayTe2);
 		//metaCSPLogger.info("Delay if x drives first: " + delayTe1.getValue());
 		//metaCSPLogger.info("Delay if y drives first: " + delayTe2.getValue());
 		return new Pair<Double, Double>(delayTe1.getValue(), delayTe2.getValue());
 	}
+
+	public Pair<Double,Double> computeTimeDelay(Pose start1, Pose goal1, Pose start2, Pose goal2, int robotID1, int robotID2 ){
+		
+
+		ArrayList<Pose> goals1 = new ArrayList<Pose>();
+		goals1.add(goal1);
+
+		ArrayList<Pose> goals2 = new ArrayList<Pose>();
+		goals2.add(goal2);
+		
+		return computeTimeDelay(start1,goals1,start2,goals2, robotID1, robotID2);
+
+	}
     
-	public PoseSteering[] calculatePath(int robotID, Pose start, ArrayList<Pose> goals, double distanceBetweenPathPoints ){
+	public Pair<PoseSteering[], Double[]> calculatePath(int robotID, Pose start, ArrayList<Pose> goals, double distanceBetweenPathPoints ){
 
 		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
+		ArrayList<Double> finalCurvatures = new ArrayList<Double>();  
 		for (int i = 0; i < goals.size(); i++) {
 			Pose goal = goals.get(i);
 			if (i > 0) start = goals.get(i-1);
-			PoseSteering[] pathPoses = calculatePath(robotID, start,goal, distanceBetweenPathPoints);
+			Pair<PoseSteering[], double[]> p =  calculatePath(robotID, start,goal, distanceBetweenPathPoints);
+			PoseSteering[] pathPoses = p.getFirst();
+			double[] curvatures = p.getSecond();
+
+			for(int z=0; z < curvatures.length; z++) {
+				finalCurvatures.add(curvatures[z]);
+			}
 			if (i == 0) finalPath.add(pathPoses[0]);
 			for (int j = 1; j < pathPoses.length; j++) finalPath.add(pathPoses[j]);
 		}
 		
 		PoseSteering[] path = finalPath.toArray(new PoseSteering[finalPath.size()]);
-		return path;
+		Double[] curvatures = finalCurvatures.toArray(new Double[finalCurvatures.size()]);
+		return new Pair<PoseSteering[], Double[]>(path, curvatures);
 	}
     
-	public  PoseSteering[] calculatePath(int robotID, Pose start, Pose goal, double distanceBetweenPathPoints ){
+	public  Pair<PoseSteering[], double[]> calculatePath(int robotID, Pose start, Pose goal, double distanceBetweenPathPoints ){
 		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
 		PointerByReference pathi = new PointerByReference();
 		PointerByReference curvsi = new PointerByReference();
@@ -252,9 +290,7 @@ public abstract class AbstractFleetMasterInterface {
 		final Pointer pathCurvs = curvsi.getValue();
 		double[] curvatures = pathCurvs.getDoubleArray(0, numVals);
 		
-
-		
-		return finalPath.toArray(new PoseSteering[finalPath.size()]);
+		return new Pair<PoseSteering[], double[]>(finalPath.toArray(new PoseSteering[finalPath.size()]), curvatures);
 	}
 	
 	/**

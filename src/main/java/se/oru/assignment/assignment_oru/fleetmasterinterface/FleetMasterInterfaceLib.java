@@ -38,9 +38,9 @@ public interface FleetMasterInterfaceLib extends Library {
     				long[] indicesTCD1, double[] valuesTCD1, long sizeTCD1, long[] indicesTCD2, double[] valuesTCD2, long sizeTCD2, DoubleByReference delay1, DoubleByReference delay2);
     
 
-	void computeTimeDelay(PointerByReference p, PathPose[] path1, int path1_length, PathPose[] path2, int path2_length,int robotID1, int robotID2, DoubleByReference delay1, DoubleByReference delay2 );
+	void computeTimeDelayWPath(PointerByReference p, PathPose[] path1, int path1_length, double[] curvs1, PathPose[] path2, int path2_length, double[] curvs2, int robotID1, int robotID2, DoubleByReference delay1, DoubleByReference delay2 );
     
-	void computeTimeDelayWStartandGoal(PointerByReference p, PathPose start1, PathPose goal1, PathPose start2, PathPose goal2, int robotID1, int robotID2, DoubleByReference delay1, DoubleByReference delay2 );
+	void computeTimeDelay(PointerByReference p, PathPose start1, PathPose[] goals1, int numgoals1, PathPose start2, PathPose[] goals2, int numgoals2, int robotID1, int robotID2, DoubleByReference delay1, DoubleByReference delay2 );
 	
 	void calculatePath(PointerByReference p, int robotID, PathPose start, PathPose goal, PointerByReference path, PointerByReference curvatures, IntByReference pathLength, double distanceBetweenPathPoints);
 
