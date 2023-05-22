@@ -249,15 +249,19 @@ public abstract class AbstractFleetMasterInterface {
 			PoseSteering[] pathPoses = p.getFirst();
 			double[] curvatures = p.getSecond();
 
-			for(int z=0; z < curvatures.length; z++) {
-				finalCurvatures.add(curvatures[z]);
+			if (i == 0) {
+				finalPath.add(pathPoses[0]);
+				finalCurvatures.add(curvatures[0]);
 			}
-			if (i == 0) finalPath.add(pathPoses[0]);
-			for (int j = 1; j < pathPoses.length; j++) finalPath.add(pathPoses[j]);
+			for (int j = 1; j < pathPoses.length; j++) {
+				finalPath.add(pathPoses[j]);
+				finalCurvatures.add(curvatures[j]);
+			}
 		}
 		
 		PoseSteering[] path = finalPath.toArray(new PoseSteering[finalPath.size()]);
 		Double[] curvatures = finalCurvatures.toArray(new Double[finalCurvatures.size()]);
+
 		return new Pair<PoseSteering[], Double[]>(path, curvatures);
 	}
     
