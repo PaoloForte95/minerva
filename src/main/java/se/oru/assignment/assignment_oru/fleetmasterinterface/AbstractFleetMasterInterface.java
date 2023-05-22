@@ -186,8 +186,8 @@ public abstract class AbstractFleetMasterInterface {
 		Double[] curvs1 = new Double[path1.length];
 		Double[] curvs2 = new Double[path2.length];
 
-		Arrays.fill(curvs1, 0);
-		Arrays.fill(curvs2, 0);
+		Arrays.fill(curvs1, 0.0);
+		Arrays.fill(curvs2, 0.0);
 
 		return computeTimeDelayWPath(path1,curvs1,path2,curvs2,robotID1, robotID2);
 	}
