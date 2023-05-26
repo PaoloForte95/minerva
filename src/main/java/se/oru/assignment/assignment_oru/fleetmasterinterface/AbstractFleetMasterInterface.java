@@ -157,7 +157,7 @@ public abstract class AbstractFleetMasterInterface {
 	}
 
 
-	public Pair<Double,Double> computeTimeDelayWPath(PoseSteering[] path1, Double[] curvs1, PoseSteering[] path2, Double[] curvs2, int robotID1, int robotID2 ){
+	public Pair<Double,Double> computeTimeDelayWPath(PoseSteering[] path1, double[] curvs1, PoseSteering[] path2, double[] curvs2, int robotID1, int robotID2 ){
 		PathPose[] pi1 = (PathPose[])new PathPose().toArray(path1.length);
 		double[] steering = new double[path1.length];
 		for (int i = 0; i < path1.length; i++) {
@@ -178,13 +178,13 @@ public abstract class AbstractFleetMasterInterface {
 
 		DoubleByReference delayTe1 = new DoubleByReference();
 		DoubleByReference delayTe2 = new DoubleByReference();
-		INSTANCE.computeTimeDelayWPath(p, pi1,  path1.length, ArrayUtils.toPrimitive(curvs1), pi2, path2.length, ArrayUtils.toPrimitive(curvs2), robotID1, robotID2, delayTe1,delayTe2);
+		INSTANCE.computeTimeDelayWPath(p, pi1,  path1.length, curvs1, pi2, path2.length, curvs2, robotID1, robotID2, delayTe1,delayTe2);
 		return new Pair<Double, Double>(delayTe1.getValue(), delayTe2.getValue());
 	}
 
 	public Pair<Double,Double> computeTimeDelayWPath(PoseSteering[] path1, PoseSteering[] path2, int robotID1, int robotID2 ){
-		Double[] curvs1 = new Double[path1.length];
-		Double[] curvs2 = new Double[path2.length];
+		double[] curvs1 = new double[path1.length];
+		double[] curvs2 = new double[path2.length];
 
 		Arrays.fill(curvs1, 0.0);
 		Arrays.fill(curvs2, 0.0);
@@ -238,7 +238,7 @@ public abstract class AbstractFleetMasterInterface {
 
 	}
     
-	public Pair<PoseSteering[], Double[]> calculatePath(int robotID, Pose start, ArrayList<Pose> goals, double distanceBetweenPathPoints ){
+	public Pair<PoseSteering[], double[]> calculatePath(int robotID, Pose start, ArrayList<Pose> goals, double distanceBetweenPathPoints ){
 
 		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
 		ArrayList<Double> finalCurvatures = new ArrayList<Double>();  
@@ -260,9 +260,9 @@ public abstract class AbstractFleetMasterInterface {
 		}
 		
 		PoseSteering[] path = finalPath.toArray(new PoseSteering[finalPath.size()]);
-		Double[] curvatures = finalCurvatures.toArray(new Double[finalCurvatures.size()]);
+		double[] curvatures = ArrayUtils.toPrimitive(finalCurvatures.toArray(new Double[finalCurvatures.size()]));
 
-		return new Pair<PoseSteering[], Double[]>(path, curvatures);
+		return new Pair<PoseSteering[], double[]>(path, curvatures);
 	}
     
 	public  Pair<PoseSteering[], double[]> calculatePath(int robotID, Pose start, Pose goal, double distanceBetweenPathPoints ){
