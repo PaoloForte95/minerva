@@ -44,7 +44,7 @@ public interface FleetMasterInterfaceLib extends Library {
 	
 	void calculatePath(PointerByReference p, int robotID, PathPose start, PathPose goal, PointerByReference path, PointerByReference curvatures, IntByReference pathLength, double distanceBetweenPathPoints);
 
-	public void cleanupPath(Pointer p);
+	public void cleanupPath(Pointer p, Pointer c);
     
 
 	

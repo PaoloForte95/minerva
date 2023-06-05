@@ -245,7 +245,7 @@ public abstract class AbstractFleetMasterInterface {
 		for (int i = 0; i < goals.size(); i++) {
 			Pose goal = goals.get(i);
 			if (i > 0) start = goals.get(i-1);
-			Pair<PoseSteering[], double[]> p =  calculatePath(robotID, start,goal, distanceBetweenPathPoints);
+			Pair<PoseSteering[], double[]> p =  calculatePath(robotID, start, goal, distanceBetweenPathPoints);
 			PoseSteering[] pathPoses = p.getFirst();
 			double[] curvatures = p.getSecond();
 
@@ -258,7 +258,7 @@ public abstract class AbstractFleetMasterInterface {
 				finalCurvatures.add(curvatures[j]);
 			}
 		}
-		
+		metaCSPLogger.info("Path Length: " + finalPath.size());
 		PoseSteering[] path = finalPath.toArray(new PoseSteering[finalPath.size()]);
 		double[] curvatures = ArrayUtils.toPrimitive(finalCurvatures.toArray(new Double[finalCurvatures.size()]));
 
@@ -287,12 +287,13 @@ public abstract class AbstractFleetMasterInterface {
 		int numVals = path_length.getValue();
 		if (numVals == 0) return null;
 		PathPose[] pathPoses = (PathPose[])valsRef.toArray(numVals);
-		finalPath.add(new PoseSteering(pathPoses[0].x, pathPoses[0].y, pathPoses[0].theta, 0.0));
-		for (int j = 1; j < pathPoses.length; j++) finalPath.add(new PoseSteering(pathPoses[j].x, pathPoses[j].y, pathPoses[j].theta, 0.0));
-		INSTANCE.cleanupPath(pathVals);
+		for (int j = 0; j < pathPoses.length; j++) {
+			finalPath.add(new PoseSteering(pathPoses[j].x, pathPoses[j].y, pathPoses[j].theta, 0.0));
+		}
 		//Get the Path curvatures
 		final Pointer pathCurvs = curvsi.getValue();
 		double[] curvatures = pathCurvs.getDoubleArray(0, numVals);
+		INSTANCE.cleanupPath(pathVals, pathCurvs);
 		
 		return new Pair<PoseSteering[], double[]>(finalPath.toArray(new PoseSteering[finalPath.size()]), curvatures);
 	}
