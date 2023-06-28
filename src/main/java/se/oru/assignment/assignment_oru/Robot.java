@@ -14,6 +14,7 @@ public class Robot {
 	 protected Coordinate[] footprint;
 	 protected ForwardModel fm = null;
 	 protected double capacity;
+
 	 
 
 	 // DEFAULT VARIABLES
@@ -29,8 +30,10 @@ public class Robot {
 	};
 
 	protected static ROBOT_TYPE DEFAULT_TYPE = MOBILE_ROBOT.CARLIKE;
+	protected static double vel = 4;
+	protected static double acc = 6;
 		 
-	protected static ConstantAccelerationForwardModel DEFAULT_FORWARD_MODEL = new ConstantAccelerationForwardModel(1, 1, 1000.0, 1000, 30);
+
 	 
 	
 	/**
@@ -40,11 +43,11 @@ public class Robot {
 		 * @param footprint -> The footprint of the robot. 
 		 * @param fm -> The forward model of the robot.
 		 */
-	 public Robot(int robotID, ROBOT_TYPE robotType,Coordinate[] footprint, ForwardModel fm) {
+	 public Robot(int robotID, ROBOT_TYPE robotType,Coordinate[] footprint, double vel, double acc) {
 		 this.robotID = robotID;
 		 this.robotType = robotType;
 		 this.footprint = footprint;
-		 this.fm = fm;	
+		 this.fm = new ConstantAccelerationForwardModel(acc, vel, 1000.0, 1000, 30);	
 		 this.capacity = 1.0;
 	 }
 	 /**
@@ -53,7 +56,8 @@ public class Robot {
 	  * @param startingPosition -> The Starting Position of the Robot.
 	  */
 	 public Robot(int robotID) {
-		 this(robotID, DEFAULT_TYPE,DEFAULT_FOOTPRINT,DEFAULT_FORWARD_MODEL);
+		
+		 this(robotID, DEFAULT_TYPE,DEFAULT_FOOTPRINT,vel, acc);
 	 }
 	 
 	 /**
@@ -62,7 +66,7 @@ public class Robot {
 	  * @param RobotType -> The type of the Robot
 	  */
 	 public Robot(int robotID,ROBOT_TYPE robotType) {
-		 this(robotID,robotType,DEFAULT_FOOTPRINT,DEFAULT_FORWARD_MODEL);
+		 this(robotID,robotType,DEFAULT_FOOTPRINT,vel, acc);
 	 }
 	 
 	 
@@ -73,7 +77,7 @@ public class Robot {
 	  * @param footprint -> The footprint of the robot
 	  */
 	 public Robot(int robotID,ROBOT_TYPE robotType,Coordinate[] footprint) {
-		 this(robotID,robotType,footprint,DEFAULT_FORWARD_MODEL);
+		 this(robotID,robotType,footprint, vel, acc);
 	 }
 
 	 public int getRobotID() {
