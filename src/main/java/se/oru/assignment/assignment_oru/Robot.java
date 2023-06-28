@@ -14,6 +14,8 @@ public class Robot {
 	 protected Coordinate[] footprint;
 	 protected ForwardModel fm = null;
 	 protected double capacity;
+	 protected double vel;
+	 protected double acc;
 
 	 
 
@@ -30,8 +32,7 @@ public class Robot {
 	};
 
 	protected static ROBOT_TYPE DEFAULT_TYPE = MOBILE_ROBOT.CARLIKE;
-	protected static double vel = 4;
-	protected static double acc = 6;
+
 		 
 
 	 
@@ -47,6 +48,8 @@ public class Robot {
 		 this.robotID = robotID;
 		 this.robotType = robotType;
 		 this.footprint = footprint;
+		 this.vel = vel;
+		 this.acc = acc;
 		 this.fm = new ConstantAccelerationForwardModel(acc, vel, 1000.0, 1000, 30);	
 		 this.capacity = 1.0;
 	 }
@@ -57,7 +60,7 @@ public class Robot {
 	  */
 	 public Robot(int robotID) {
 		
-		 this(robotID, DEFAULT_TYPE,DEFAULT_FOOTPRINT,vel, acc);
+		 this(robotID, DEFAULT_TYPE,DEFAULT_FOOTPRINT,6, 4);
 	 }
 	 
 	 /**
@@ -66,7 +69,7 @@ public class Robot {
 	  * @param RobotType -> The type of the Robot
 	  */
 	 public Robot(int robotID,ROBOT_TYPE robotType) {
-		 this(robotID,robotType,DEFAULT_FOOTPRINT,vel, acc);
+		 this(robotID,robotType,DEFAULT_FOOTPRINT,6, 4);
 	 }
 	 
 	 
@@ -77,7 +80,7 @@ public class Robot {
 	  * @param footprint -> The footprint of the robot
 	  */
 	 public Robot(int robotID,ROBOT_TYPE robotType,Coordinate[] footprint) {
-		 this(robotID,robotType,footprint, vel, acc);
+		 this(robotID,robotType,footprint, 6, 4);
 	 }
 
 	 public int getRobotID() {
@@ -118,9 +121,19 @@ public class Robot {
 		return this.capacity;
 	 }
 
+	 public double getVel(){
+		return this.vel;
+	 }
+
+	 public double getAcc(){
+		return this.acc;
+	 }
+
 	 public String toString() {
 		return "Robot " + robotID +" of type " + robotType ; 
 	}
+
+
 }
 
 
