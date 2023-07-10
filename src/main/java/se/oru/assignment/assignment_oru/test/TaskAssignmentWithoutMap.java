@@ -97,7 +97,7 @@ public class TaskAssignmentWithoutMap {
 		//JTSDrawingPanelVisualization viz = new JTSDrawingPanelVisualization();
 		//viz.setSize(1024, 768);
 		BrowserTaskVisualization viz = new BrowserTaskVisualization();
-		viz.setInitialTransform(20, 44.46, 17.26);
+		viz.setInitialTransform(20, 3, 11);
 		tec.setVisualization(viz);
 		tec.setUseInternalCriticalPoints(false);
 
@@ -211,7 +211,6 @@ public class TaskAssignmentWithoutMap {
 		
 		assignmentProblem.setmaxNumberOfAlternativePaths(numPaths);
 		assignmentProblem.setCoordinator(tec);
-		assignmentProblem.instantiateFleetMaster(0.05, false);
 		
 		
 		
