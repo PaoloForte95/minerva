@@ -17,8 +17,6 @@ public class Robot {
 	 protected double vel;
 	 protected double acc;
 
-	 
-
 	 // DEFAULT VARIABLES
 	 /**
 		 * The default footprint used for robots if none is specified.
@@ -33,10 +31,6 @@ public class Robot {
 
 	protected static ROBOT_TYPE DEFAULT_TYPE = MOBILE_ROBOT.CARLIKE;
 
-		 
-
-	 
-	
 	/**
 		 * Create a new {@link Robot} 
 		 * @param robotID -> The ID of the Robot
