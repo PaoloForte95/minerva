@@ -182,7 +182,6 @@ public class TaskAssignmentWarehouseOnline {
 		OptimizationProblem assignmentProblem = new OptimizationProblem();
 		
 		assignmentProblem.setCoordinator(tec);
-		assignmentProblem.instantiateFleetMaster(0.1, false);
 
 		assignmentProblem.addTask(task1);
 		assignmentProblem.addTask(task2);

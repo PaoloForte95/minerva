@@ -30,8 +30,6 @@ import se.oru.assignment.assignment_oru.ComputePathCallback;
 import se.oru.assignment.assignment_oru.IndexedDelay;
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
-import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
-import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 
@@ -74,9 +72,6 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		private HashMap<Integer, PoseSteering[]> pathsToTargetGoal =  new HashMap<Integer, PoseSteering[]>();
 		private ArrayList <SpatialEnvelope> pathsDrivingRobots = new ArrayList <SpatialEnvelope>();
 		
-		//FleetMaster Interface Parameters	
-		private AbstractFleetMasterInterface eclInterface;
-		private boolean propagateDelays;
 
 		//Coordinator
 		private AbstractTrajectoryEnvelopeCoordinator coordinator;
@@ -121,24 +116,11 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		public OptimizationProblem(){
 			super();
 			metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
-			eclInterface = null;
-			propagateDelays = false;
-			numAllocation = 1;
 		}
 
 		@Override
 		public boolean addRobot(Robot robot) {
 			int robotID = robot.getRobotID();
-			eclInterface.setTrajParams(robotID, coordinator.getRobotMaxVelocity(robotID), coordinator.getRobotMaxAcceleration(robotID));
-			if(robot.getType() == MOBILE_ROBOT.ARTICULATED){
-				eclInterface.setRobotType(robotID, 1);
-			}
-			else if(robot.getType() == MOBILE_ROBOT.CARLIKE){
-				eclInterface.setRobotType(robotID, 2);
-			}
-			else {
-				metaCSPLogger.severe(("Other cases are not supported yet. Please select between ARTICULATED and CARLIKE"));
-			}
 			return super.addRobot(robot);
 		}
 
@@ -157,47 +139,6 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 				}
 			}
 			return maxFootprint;
-		}
-
-		/**
-		 * Enable and initialize the fleetmaster library to estimate precedences to minimize the overall completion time.
-		 * Note: this function should be called before placing the first robot.
-		 * ATTENTION: If dynamic_size is <code>false</code>, then the user should check that all the paths will lay in the given area.
-		 * @param origin_x The x coordinate (in meters and in global inertial frame) of the lower-left pixel of fleetmaster GridMap.
-		 * @param origin_y The y coordinate (in meters and in global inertial frame) of the lower-left pixel of fleetmaster GridMap.
-		 * @param origin_theta The theta coordinate (in rads) of the lower-left pixel map (counterclockwise rotation). Many parts of the system currently ignore it.
-		 * @param resolution The resolution of the map (in meters/cell), 0.01 <= resolution <= 1. It is assumed this parameter to be global among the fleet.
-		 * 					 The highest the value, the less accurate the estimation, the lowest the more the computational effort.
-		 * @param width Number of columns of the map (>= 1) if dynamic sizing is not enabled.
-		 * @param height Number of rows of the map (>= 1) if dynamic sizing is not enabled.
-		 * @param dynamic_size If <code>true</code>, it allows to store only the bounding box containing each path.
-		 * @param propagateDelays If <code>true</code>, it enables the delay propagation.
-		 * @param debug If <code>true</code>, it enables writing to screen debugging info.
-		 */
-		public void instantiateFleetMaster(double origin_x, double origin_y, double origin_theta, double resolution, long width, long height, boolean dynamic_size, boolean propagateDelays, boolean debug) {
-			this.eclInterface = new FleetMasterInterface(origin_x, origin_y, origin_theta, resolution, width, height, dynamic_size, debug);
-			this.eclInterface.setDefaultFootprint(DEFAULT_FOOTPRINT);
-			this.propagateDelays = propagateDelays;
-		}
-		
-		/**
-		 * Enable and initialize the fleetmaster library to estimate precedences to minimize the overall completion time
-		 * while minimizing the computational requirements (bounding box are used to set the size of each path-image).
-		 * Note: this function should be called before placing the first robot.
-		 * @param resolution The resolution of the map (in meters/cell), 0.01 <= resolution <= 1. It is assumed this parameter to be global among the fleet.
-		 * 					 The highest the value, the less accurate the estimation, the lowest the more the computational effort.
-		 * @param propagateDelays If <code>true</code>, it enables the delay propagation.
-		 */
-		public void instantiateFleetMaster(double resolution, boolean propagateDelays) {
-			instantiateFleetMaster(0., 0., 0., resolution, 1000, 1000, true, propagateDelays, false);
-		}
-			
-
-		protected Pair<Double,Double> estimateTimeToCompletionDelays(int robot1ID,PoseSteering[] pss1, int robot2ID,PoseSteering[] pss2){
-			if (this.eclInterface != null){
-				return eclInterface.computeTimeDelayWPath(pss1, pss2, robot1ID, robot2ID);
-			}
-			return new Pair<Double, Double> (Double.NaN, Double.NaN);
 		}
 
 		/**
@@ -798,96 +739,8 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 							for(int s = 0;s < alternativePaths; s++) {
 								
 								if (assignmentMatrix [secondRobotIndex][secondTaskIndex][s] > 0 && secondRobotID != robotID && secondTaskID != taskID) {
-										//Take the path of this second robot from path set
-										
-										PoseSteering[] pss2 = pathsToTargetGoal.get(secondRobotID*numTaskAug*alternativePaths  + secondTaskID*alternativePaths+s);
-										if (pss2 != null) {//is == null if robotType is different to Task type
-											
-											
-											//Evaluate the Spatial Envelope of this second Robot
-											SpatialEnvelope se2 = TrajectoryEnvelope.createSpatialEnvelope(pss2,coordinator.getFootprint(secondRobotID));
-											long timeInitial = Calendar.getInstance().getTimeInMillis();
-											//Compute the Critical Section between this 2 robot
-											CriticalSection [] css = new CriticalSection[1];
-											
-											/*
-											
-											if(criticalSections.containsKey(robotID*numTaskAug*maxNumPaths+taskID*maxNumPaths+pathID) ) {
-												css= criticalSections.get(robotID*numTaskAug*maxNumPaths+taskID*maxNumPaths+pathID)[secondRobotIndex][secondTaskIndex][s];
-												if(css.length == 1) {
-													css = AbstractTrajectoryEnvelopeCoordinator.getCriticalSections(se1, se2,true, Math.min(tec.getFootprintPolygon(robotID).getArea(),tec.getFootprintPolygon(secondRobotID).getArea()));
-													
-												}
-											}else {
-												css = AbstractTrajectoryEnvelopeCoordinator.getCriticalSections(se1, se2,true, Math.min(tec.getFootprintPolygon(robotID).getArea(),tec.getFootprintPolygon(secondRobotID).getArea()));
-												cssMatrix[secondRobotIndex][secondTaskIndex][s] = css;
-												criticalSections.put(robotID*numTaskAug*maxNumPaths+taskID*maxNumPaths+pathID, cssMatrix);
-												//Evaluate the time to compute critical Section
-												long timeFinal = Calendar.getInstance().getTimeInMillis();
-												long timeRequired = timeFinal- timeInitial;
-												timeRequiretoComputeCriticalSection = timeRequiretoComputeCriticalSection + timeRequired;
-												fileStream1.println(timeRequired+"");
-						
-											}
-											
-											*/
-											
-											
-											css = AbstractTrajectoryEnvelopeCoordinator.getCriticalSections(se1, se2,true, Math.min(coordinator.getFootprintPolygon(robotID).getArea(),coordinator.getFootprintPolygon(secondRobotID).getArea()));
-											cssMatrix[secondRobotIndex][secondTaskIndex][s] = css;
-											//criticalSections.put(robotID*numTaskAug*maxNumPaths+taskID*maxNumPaths+pathID, cssMatrix);
-											//Evaluate the time to compute critical Section
-											long timeFinal = Calendar.getInstance().getTimeInMillis();
-											long timeRequired = timeFinal- timeInitial;
-											timeRequiretoComputeCriticalSection = timeRequiretoComputeCriticalSection + timeRequired;
-											//fileStream1.println(timeRequired+"");
-											
-											
-											timeInitial2 = Calendar.getInstance().getTimeInMillis();
-											//Compute the delay due to precedence constraint in Critical Section
-											for (int g = 0; g < css.length; g++) {
-												//Pair<Double, Double> a1 = estimateTimeToCompletionDelays(pss1.hashCode(),pss1,te1TCDelays,pss2.hashCode(),pss2,te2TCDelays, css[g]);
-												
-												metaCSPLogger.info("Evaluating delay between Robot " + robotID+ " executing Task " + taskID + " and Robot" + secondRobotID +" executing Task " + secondTaskID);
-												Pair<Double, Double> a1 = estimateTimeToCompletionDelays(robotID,pss1,secondRobotID,pss2);
-												double delayCriticalSection = Math.min(a1.getFirst(), a1.getSecond());
-												//fileStream3.println(a1.getFirst() + " " +  a1.getSecond() + " " + robotID + " " + secondRobotID+ " ");
-												if(delayCriticalSection < 0 ) {
-													delay += 0;
-												}else if(delayCriticalSection == Double.POSITIVE_INFINITY) {
-													delay += 10000;
-												}else {
-													delay += delayCriticalSection;
-												}
-											}
-
-									
-									//Take the paths of driving robots from coordinator
-									pathsDrivingRobots = coordinator.getDrivingEnvelope();
-								//Evaluate the delay time due to already driving robots
-									for(int k = 0; k < pathsDrivingRobots.size(); k++) {
-										System.out.println("TEST DRIVING!");
-										CriticalSection [] cssDrivingRobot = AbstractTrajectoryEnvelopeCoordinator.getCriticalSections(se1, pathsDrivingRobots.get(k),true, Math.min(coordinator.getFootprintPolygon(robotID).getArea(),coordinator.getFootprintPolygon(secondRobotID).getArea()));
-										for (int b = 0; b < cssDrivingRobot.length; b++) {
-											//Pair<Double, Double> a1 = estimateTimeToCompletionDelays(pss1.hashCode(),pss1,te1TCDelays,pathsDrivingRobots.get(k).getPath().hashCode(),pathsDrivingRobots.get(k).getPath(),te2TCDelays, cssDrivingRobot[b]);
-											Pair<Double, Double> a1 = estimateTimeToCompletionDelays(robotID,pss1,secondRobotID,pss2);
-											double delayCriticalSection = Math.min(a1.getFirst(), a1.getSecond());
-											if(delayCriticalSection < 0 ) {
-												delay += 0;
-											}else if(delayCriticalSection == Double.POSITIVE_INFINITY) {
-												delay += 10000;
-											}else {
-												delay += delayCriticalSection;
-											}
-										}
-									}
-									
-									
-									long timeFinal2 = Calendar.getInstance().getTimeInMillis();
-									long timeRequired2 = timeFinal2- timeInitial2;
-									timeRequiretoComputePathsDelay = timeRequiretoComputePathsDelay + timeRequired2;
-									//fileStream2.println(timeRequired2+"");
-									}
+										//Evaluate the delay
+										delay = 0.0;
 								} 
 							}	
 					}	
@@ -1195,4 +1048,3 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 	
 
 	} //End class
-
