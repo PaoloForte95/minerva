@@ -1,5 +1,5 @@
 1/*
- * assignment_oru - Online task assignment for multiple robots
+ * minerva - Online task assignment for multiple robots
  *
  * Copyright (C) 2023 Paolo Forte
  *
@@ -28,6 +28,9 @@ apply plugin: 'maven-publish'
 // your package is used as a binary.
 apply plugin: 'application'
 
+
+// The main class that will be executed when you do 'gradle run'
+mainClassName = 'se.oru.assignment.assignment_oru.test.TaskAssignmentWithoutMap'
 
 repositories {
   mavenLocal()
