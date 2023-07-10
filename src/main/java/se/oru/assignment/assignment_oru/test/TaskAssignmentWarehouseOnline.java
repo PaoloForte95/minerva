@@ -83,8 +83,8 @@ public class TaskAssignmentWarehouseOnline {
 		
 		//Start a visualization (will open a new browser tab)
 		BrowserTaskVisualization viz = new BrowserTaskVisualization();
-		//viz.setMap(yamlFile);
-		viz.setInitialTransform(25, 6.1, 6.8);
+		viz.setMap(yamlFile);
+		viz.setInitialTransform(10, 6.1, 46.8);
 		tec.setVisualization(viz);
 		tec.setBreakDeadlocks(true, false, false);
 		//Robot IDs can be non-sequential (but must be unique)
@@ -156,7 +156,7 @@ public class TaskAssignmentWarehouseOnline {
 		rsp1.setTurningRadius(4.0);
 		rsp1.setFootprint(tec.getDefaultFootprint());
 		rsp1.setDistanceBetweenPathPoints(0.5);
-		//rsp1.setMap(yamlFile);
+		rsp1.setMap(yamlFile);
 		rsp1.setPlanningTimeInSecs(2);
 		
 		tec.placeRobot(1, startPoseRobot1);
@@ -222,7 +222,7 @@ public class TaskAssignmentWarehouseOnline {
 			rsp.setFootprint(tec.getFootprint(robotID));
 			rsp.setTurningRadius(4.0);
 			rsp.setDistanceBetweenPathPoints(0.1);
-			//rsp.setMap(yamlFile);
+			rsp.setMap(yamlFile);
 			double res = 0.2;// Double.parseDouble(getProperty("resolution", yamlFile));
 			//rsp.setMapFilename("maps"+File.separator+Missions.getProperty("image", "maps/CentroPiaggio.yaml"));
 			//double res = Double.parseDouble(Missions.getProperty("resolution", "maps/CentroPiaggio.yaml"));

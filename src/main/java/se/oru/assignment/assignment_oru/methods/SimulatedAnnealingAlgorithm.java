@@ -7,8 +7,7 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 
 import com.google.ortools.linearsolver.*;
 
-import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
-import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem;
 
 
 
@@ -27,17 +26,16 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 	
 
 	
-	public int [][][] solveOptimizationProblem(LinearOptimizationProblem oap){
+	public int [][][] solveOptimizationProblem(AbstractOptimizationProblem oap){
 		return solveOptimizationProblem(oap,-1);
 	
 	}
 
 
 
-	public int [][][] solveOptimizationProblem(LinearOptimizationProblem oap,int iterations){
+	public int [][][] solveOptimizationProblem(AbstractOptimizationProblem oap,int iterations){
 		logger.info("Solving the problem using the Simulated Annealing Algorithm");
 		Random rand = new Random(3455343);
-		MPSolver optimizationModel = oap.getModel();
 		ArrayList<Integer> IDsAllRobots = oap.getRobotsIDs();
 		ArrayList<Integer> IDsAllTasks = oap.getTasksIDs();
 		
@@ -54,7 +52,7 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 		int [][][] optimalAssignmentMatrix = new int[numRobotAug][numTaskAug][maxNumPaths];
 		double objectiveOptimalValue = 100000000;
 		//Solve the optimization problem
-		optimizationModel.solve();
+		oap.solve();
 		int [][][] AssignmentMatrix = oap.getAssignmentMatrix();
 		int randomRobotID1 = 0;
 		int prova2 = 0;
@@ -207,13 +205,13 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 							if ( newAssignmentMatrix[i][j][s] > 0) {
 								if (linearWeight != 1) {
 									//Evaluate cost of F function only if alpha is not equal to 1
-									double costB = optimizationModel.objective().getCoefficient(optimizationModel.variables()[i*numTaskAug*maxNumPaths+j*maxNumPaths+s]);
+									double costB = oap.getRobotSingleCost(robotID,taskID,s);
 									costF = oap.evaluateInterferenceCost(robotID,taskID,s,AssignmentMatrix);
 									costofAssignment = linearWeight*costB + (1-linearWeight)*costF + costofAssignment ;
 									costofAssignmentForConstraint = costValuesMatrix[i][j][s] + costF + costofAssignmentForConstraint;							
 								}
 								else {
-									double costB = optimizationModel.objective().getCoefficient(optimizationModel.variables()[i*numTaskAug*maxNumPaths+j*maxNumPaths+s]);
+									double costB = oap.getRobotSingleCost(robotID,taskID,s);
 									costofAssignment = Math.pow(linearWeight*costB, 2) + costofAssignment ;
 									costofAssignmentForConstraint = costValuesMatrix[i][j][s]  + costofAssignmentForConstraint;
 								}
@@ -266,12 +264,6 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 	}
 
 
-
-	@Override
-	public int[][][] solveOptimizationProblem(ConstraintOptimizationProblem oap) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'solveOptimizationProblem'");
-	}
 	
 	}
 

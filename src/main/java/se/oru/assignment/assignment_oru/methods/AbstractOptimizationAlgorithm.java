@@ -2,6 +2,7 @@ package se.oru.assignment.assignment_oru.methods;
 
 import java.util.logging.Logger;
 
+import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem;
 import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
 import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 
@@ -63,14 +64,8 @@ public abstract class AbstractOptimizationAlgorithm  {
 	 * @param oap -> An optimization problem defined with {@link #buildOptimizationProblem}
 	 * @return The optimal Assignment
 	 */	
-	public abstract int [][][] solveOptimizationProblem(LinearOptimizationProblem oap);
+	public abstract int [][][] solveOptimizationProblem(AbstractOptimizationProblem oap);
 
-	/** 
-	 * Solve the optimization problem given as input
-	 * @param oap -> An optimization problem defined with {@link #buildOptimizationProblem}
-	 * @return The optimal Assignment
-	 */	
-	public abstract int [][][] solveOptimizationProblem(ConstraintOptimizationProblem oap);
 
 }
 

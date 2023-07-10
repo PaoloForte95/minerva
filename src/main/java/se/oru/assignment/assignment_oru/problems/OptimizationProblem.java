@@ -68,14 +68,14 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		private long timeRequiretoComputeCriticalSection;
 		private long timeRequiretoComputePathsDelay;
 
-		private int numAllocation = 1;
+		private int numAllocation;
 
 		//Paths 
 		private HashMap<Integer, PoseSteering[]> pathsToTargetGoal =  new HashMap<Integer, PoseSteering[]>();
 		private ArrayList <SpatialEnvelope> pathsDrivingRobots = new ArrayList <SpatialEnvelope>();
 		
 		//FleetMaster Interface Parameters	
-		private AbstractFleetMasterInterface fleetMasterInterface;
+		private AbstractFleetMasterInterface eclInterface;
 		private boolean propagateDelays;
 
 		//Coordinator
@@ -121,19 +121,20 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		public OptimizationProblem(){
 			super();
 			metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
-			fleetMasterInterface = null;
+			eclInterface = null;
 			propagateDelays = false;
+			numAllocation = 1;
 		}
 
 		@Override
 		public boolean addRobot(Robot robot) {
 			int robotID = robot.getRobotID();
-			fleetMasterInterface.setTrajParams(robotID, coordinator.getRobotMaxVelocity(robotID), coordinator.getRobotMaxAcceleration(robotID));
+			eclInterface.setTrajParams(robotID, coordinator.getRobotMaxVelocity(robotID), coordinator.getRobotMaxAcceleration(robotID));
 			if(robot.getType() == MOBILE_ROBOT.ARTICULATED){
-				fleetMasterInterface.setRobotType(robotID, 1);
+				eclInterface.setRobotType(robotID, 1);
 			}
 			else if(robot.getType() == MOBILE_ROBOT.CARLIKE){
-				fleetMasterInterface.setRobotType(robotID, 2);
+				eclInterface.setRobotType(robotID, 2);
 			}
 			else {
 				metaCSPLogger.severe(("Other cases are not supported yet. Please select between ARTICULATED and CARLIKE"));
@@ -174,8 +175,8 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		 * @param debug If <code>true</code>, it enables writing to screen debugging info.
 		 */
 		public void instantiateFleetMaster(double origin_x, double origin_y, double origin_theta, double resolution, long width, long height, boolean dynamic_size, boolean propagateDelays, boolean debug) {
-			this.fleetMasterInterface = new FleetMasterInterface(origin_x, origin_y, origin_theta, resolution, width, height, dynamic_size, debug);
-			this.fleetMasterInterface.setDefaultFootprint(DEFAULT_FOOTPRINT);
+			this.eclInterface = new FleetMasterInterface(origin_x, origin_y, origin_theta, resolution, width, height, dynamic_size, debug);
+			this.eclInterface.setDefaultFootprint(DEFAULT_FOOTPRINT);
 			this.propagateDelays = propagateDelays;
 		}
 		
@@ -193,8 +194,8 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 			
 
 		protected Pair<Double,Double> estimateTimeToCompletionDelays(int robot1ID,PoseSteering[] pss1, int robot2ID,PoseSteering[] pss2){
-			if (this.fleetMasterInterface != null){
-				return fleetMasterInterface.computeTimeDelayWPath(pss1, pss2, robot1ID, robot2ID);
+			if (this.eclInterface != null){
+				return eclInterface.computeTimeDelayWPath(pss1, pss2, robot1ID, robot2ID);
 			}
 			return new Pair<Double, Double> (Double.NaN, Double.NaN);
 		}
@@ -1039,24 +1040,7 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		 */
 		protected MPSolver buildOptimizationProblem() {
 			//Initialize a linear solver 
-			MPSolver optimizationProblem = super.buildOptimizationProblem();
-			//START CONSTRAINTS
-			for (int robotID : robotsIDs ) {
-					int i = robotsIDs.indexOf(robotID);
-					for (int taskID : tasksIDs ) {
-						int j = tasksIDs.indexOf(taskID);
-						for(int s = 0; s < alternativePaths; s++) {
-								if (i < realRobotsIDs.size()) { //Considering only real Robot
-									PoseSteering[] pss = pathsToTargetGoal.get(robotID*numTaskAug*alternativePaths+taskID*alternativePaths+s);
-									if(pss==null) {
-										MPConstraint c3 = optimizationProblem.makeConstraint(0,0);
-										c3.setCoefficient(decisionVariables[i][j][s],1); 
-									}
-								}
-						}
-					}
-			}
-			
+			MPSolver optimizationProblem = super.buildOptimizationProblem();	
 			//END CONSTRAINTS
 			/////////////////////////////////////////////////
 			return optimizationProblem;	
@@ -1072,9 +1056,9 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		
 		public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 			realRobotsIDs = coordinator.getIdleRobots();
-			optimizationModel = createOptimizationProblem();
+			model = createOptimizationProblem();
 			this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
-			metaCSPLogger.info("Time required to find the solution: " + optimizationSolver.getcomputationalTime() + " s");
+			metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
 			return this.optimalAssignment;
 		}
 
@@ -1112,7 +1096,7 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 							printOptimalAssignment();
 							allocateTaskstoRobots(assignmentMatrix);
 							System.out.print("Task to be completed "+ taskQueue.size());
-							optimizationModel.clear();
+							model.clear();
 							if(taskPosponedQueue.size() !=0) {
 								taskQueue.addAll(taskPosponedQueue);
 								taskPosponedQueue.removeAll(taskPosponedQueue);

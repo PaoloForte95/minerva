@@ -1,16 +1,13 @@
 package se.oru.assignment.assignment_oru.problems;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.metacsp.utility.logging.MetaCSPLogging;
 
-import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.*;
+import com.google.ortools.Loader;
 
-import se.oru.assignment.assignment_oru.Robot;
-import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 
 
@@ -25,23 +22,13 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * @author pofe
  *
  */
-public class LinearOptimizationProblem extends AbstractOptimizationProblem {
+public class LinearOptimizationProblem extends AbstractOptimizationProblem<MPSolver> {
 	 
-	protected MPSolver optimizationModel;
+	
 	protected MPVariable[][][] decisionVariables;
 
 	public LinearOptimizationProblem(){
 		super();
-		alternativePaths = 1;
-		linearWeight = 1;
-		robots = new ArrayList<Robot>();
-		taskQueue = new ArrayList <Task>();
-		taskPosponedQueue = new ArrayList <Task>();	
-		realRobotsIDs = new ArrayList <Integer>();
-		realTasksIDs = new ArrayList <Integer>();
-		robotsIDs = new ArrayList <Integer>(); //this is the set of IDs of all the robots considered into the problem (i.e. both real and virtual robots)
-		tasksIDs = new ArrayList <Integer>(); //this is the set of IDs of all the tasks considered into the problem (i.e. both real and virtual tasks)
-		feasibleSolutions = new ArrayList <int [][][]>();
 		Loader.loadNativeLibraries();
 		metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
 
@@ -73,13 +60,12 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
 	 * @param assignmentMatrix -> The Assignment Matrix of the actual optimal solution
 	 * @return An updated optimization problem  with an additional constraint on the previous optimal solution found. 
 	 */
-	public MPSolver constraintOnPreviousSolution(int [][][] assignmentMatrix) {
+	public void constraintOnPreviousSolution(int [][][] assignmentMatrix) {
 		//Take decision Variable from Optimization Problem
-
-		MPVariable [][][] DecisionVariable = tranformArray(optimizationModel);
+		MPVariable [][][] DecisionVariable = tranformArray(model);
 		//Initialize a Constraint
 		//MPConstraint c2 = optimizationProblem.makeConstraint(-Double.POSITIVE_INFINITY,1);
-		MPConstraint c2 = optimizationModel.makeConstraint(0,numRobotAug-1);
+		MPConstraint c2 = model.makeConstraint(0,numRobotAug-1);
 		//Define the actual optimal solution as a Constraint in order to not consider more it
     	for (int i = 0; i < numRobotAug; i++) {
     		for (int j = 0; j < numTaskAug; j++) {
@@ -90,8 +76,6 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
     			}
     		}		
 		 }
-    	//Return the updated Optimization Problem
-    	return this.optimizationModel;
 	}
 
 	/**
@@ -101,42 +85,28 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
 	 * @return Optimization Problem updated with the new constraint on optimal solution cost 
 	 */
 	
-	public MPSolver constraintOnCostSolution(double objectiveValue) {
+	public void constraintOnCostSolution(double objectiveValue) {
 		//Take the vector of Decision Variable from the input solver
-		MPSolver optimizationProblem = getModel();
-		MPVariable [][][] decisionVariable = tranformArray(optimizationProblem);
+		MPVariable [][][] decisionVariable = tranformArray(model);
 		//Add tolerance
 		objectiveValue = objectiveValue + 0.0005;
 		//Initialize a Constraint
-		MPConstraint c3 = optimizationProblem.makeConstraint(-Double.POSITIVE_INFINITY,objectiveValue);
+		MPConstraint c3 = model.makeConstraint(-Double.POSITIVE_INFINITY,objectiveValue);
 		//Define a constraint for which the next optimal solutions considering only B must have a cost less than objectiveValue
     	for (int i = 0; i < numRobotAug; i++) {
     		for (int j = 0; j < numTaskAug; j++) {
     			for(int s = 0;s < alternativePaths; s++) {
-					double value = optimizationModel.objective().getCoefficient(optimizationModel.variables()[i*numTaskAug*alternativePaths+j*alternativePaths+s]);
+					double value = model.objective().getCoefficient(model.variables()[i*numTaskAug*alternativePaths+j*alternativePaths+s]);
     				c3.setCoefficient(decisionVariable[i][j][s],value);
     			}
     		}		
 		 }
-    	//Return the updated Optimization Problem
-    	return optimizationProblem;
 	}
 
 
 	public int [][][] getAssignmentMatrix(){
-		//Take the decision variable from the optimization problem
-		MPSolver optimizationProblem = getModel();
-		MPVariable [][][] decisionVariable = tranformArray(optimizationProblem);
-		int [][][] assignmentMatrix = new int [numRobotAug][numTaskAug][alternativePaths];	
-		//Store decision variable values in a Matrix
-		for (int i = 0; i < numRobotAug; i++) {
-			for (int j = 0; j < numTaskAug; j++) {
-				for(int s = 0;s < alternativePaths; s++) {
-					assignmentMatrix[i][j][s] = (int) decisionVariable[i][j][s].solutionValue();
-				}
-			}
-		}
-		return assignmentMatrix;	
+
+		return currentAssignment;	
 	}
 	
 	/**
@@ -171,7 +141,7 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
 			}
 
     		this.feasibleSolutions.add(assignmentMatrix);
-			metaCSPLogger.info(feasibleSolutions.size() + " Solutions found");
+			metaCSPLogger.info(feasibleSolutions.size() + " Solution(s) found");
     		
 			//Add the constraint to actual solution -> in order to consider this solution as already found  
 			MPVariable [][][] DecisionVariable = tranformArray(optimizationProblem);
@@ -231,11 +201,6 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
 					 if ( singleRobotCost != Double.POSITIVE_INFINITY) {
 						 //Set the coefficient of the objective function with the normalized path length
 						 objective.setCoefficient(decisionVariable[i][j][s], singleRobotCost); 
-					 }else { // if the path does not exists or the robot type is different from the task type 
-						//the path to reach the task not exists
-						//the decision variable is set to 0 -> this allocation is not valid
-						MPConstraint c3 = optimizationProblem.makeConstraint(0,0);
-						c3.setCoefficient(decisionVariable[i][j][s],1); 
 					 }
 				 }
 			 }			 
@@ -297,6 +262,24 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
 				 } 		
 			 }
 		 }
+
+		 //Type Constraint 
+		 for (int robotID : robotsIDs ) {
+			int i = robotsIDs.indexOf(robotID);
+			for (int taskID : tasksIDs ) {
+				int j = tasksIDs.indexOf(taskID);
+				for(int s = 0; s < alternativePaths; s++) {
+						if (i < realRobotsIDs.size()) { //Considering only real Robot
+							double pss = interferenceFreeCostMatrix[i][j][s];
+							//Type is different or path does not exists
+							if(pss == Double.POSITIVE_INFINITY || !taskQueue.get(j).isCompatible(getRobotType(robotID))) {
+								MPConstraint c3 = optimizationProblem.makeConstraint(0,0);
+								c3.setCoefficient(decisionVariables[i][j][s],1); 
+							}
+						}
+				}
+			}
+		}
 		
 		//In the case of having more tasks than robots, the tasks with the closest deadline that are set with a higher priority are imposed as a constraint into the problem in order 
 		//to execute them during the current assignment.
@@ -329,20 +312,29 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem {
 		return interferenceCostMatrix[robotID][taskID][pathID];
 	}
 
-	/**
-	 * Get the model of the optimization function (mathematical model).
-	 * @return The model of this optimization problem.
-	 
-	*/
-	public MPSolver getModel() {
-		return this.optimizationModel;
+	public problemStatus solve(){
+		MPSolver.ResultStatus resultStatus = model.solve();
+		if(resultStatus == MPSolver.ResultStatus.INFEASIBLE){
+			return problemStatus.valueOf(resultStatus.toString());
+		}
+		//Store decision variable values in a Matrix
+		for (int i = 0; i < numRobotAug; i++) {
+			for (int j = 0; j < numTaskAug; j++) {
+				for(int s = 0;s < alternativePaths; s++) {
+					currentAssignment[i][j][s] = (int) decisionVariables[i][j][s].solutionValue();
+				}
+			}
+		}
+		constraintOnPreviousSolution(getAssignmentMatrix());
+		return problemStatus.valueOf(resultStatus.toString());
 	}
-	
+
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
-		optimizationModel = createOptimizationProblem();
+		model = createOptimizationProblem();
+		currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
 		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
-		metaCSPLogger.info("Time required to find the solution: " + optimizationSolver.getcomputationalTime() + " s");
+		metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
 		return this.optimalAssignment;
 	}
 

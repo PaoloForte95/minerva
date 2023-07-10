@@ -8,16 +8,14 @@ import java.util.List;
 
 import org.metacsp.utility.logging.MetaCSPLogging;
 
-import com.google.ortools.Loader;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
+import com.google.ortools.Loader;
 
-import se.oru.assignment.assignment_oru.Robot;
-import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 
 
@@ -32,7 +30,7 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * @author pofe
  *
  */
-public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
+public class ConstraintOptimizationProblem extends AbstractOptimizationProblem<CpModel>{
 	 
 	protected CpModel model;
 	protected CpSolver solver;
@@ -41,19 +39,10 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 
 	public ConstraintOptimizationProblem(){
 		super();
-		alternativePaths = 1;
-		linearWeight = 1;
-		robots = new ArrayList<Robot>();
-		taskQueue = new ArrayList <Task>();
-		taskPosponedQueue = new ArrayList <Task>();	
-		realRobotsIDs = new ArrayList <Integer>();
-		realTasksIDs = new ArrayList <Integer>();
-		robotsIDs = new ArrayList <Integer>(); //this is the set of IDs of all the robots considered into the problem (i.e. both real and virtual robots)
-		tasksIDs = new ArrayList <Integer>(); //this is the set of IDs of all the tasks considered into the problem (i.e. both real and virtual tasks)
-		feasibleSolutions = new ArrayList <int [][][]>();
 		Loader.loadNativeLibraries();
 		metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
 		this.model = new CpModel();
+		
 	}
 
 	/**
@@ -62,7 +51,7 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 	 * @param assignmentMatrix -> The Assignment Matrix of the actual optimal solution
 	 * @return Optimization Problem updated with the new constraint on previous optimal solution found  
 	 */
-	public CpModel constraintOnPreviousSolution(CpModel model, int [][][] assignmentMatrix) {
+	public void constraintOnPreviousSolution(int [][][] assignmentMatrix) {
 		//Initialize a Constraint
 		LinearExprBuilder c2 = LinearExpr.newBuilder();
 		//Define the actual optimal solution as a constraint in order to not consider more it
@@ -78,7 +67,6 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 		}
 		model.addLessOrEqual(c2,assignmentMatrix.length-1);
     	//Return the updated Optimization Problem
-    	return model;
 	}
 
 	
@@ -90,7 +78,7 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 	 * @return Optimization Problem updated with the new constraint on optimal solution cost 
 	 */
 	
-	public CpModel constraintOnCostSolution(CpModel optimizationProblem,double objectiveValue) {
+	public void constraintOnCostSolution(double objectiveValue) {
 		//Initialize a Constraint
 		LinearExprBuilder c3 = LinearExpr.newBuilder();
 		//Add tolerance
@@ -105,29 +93,12 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
     		}		
 		 }
 		 model.addLessOrEqual(c3,(long) objectiveValue);
-
-    	//Return the updated Optimization Problem
-    	return optimizationProblem;
 	}
 	
 	
 	public int [][][] getAssignmentMatrix(){
-		
-		int [][][] assignmentMatrix = new int [numRobotAug][numTaskAug][alternativePaths];	
 
-		//Store decision variable values in a Matrix
-		for (int i = 0; i < numRobotAug; i++) {
-			for (int j = 0; j < numTaskAug; j++) {
-				for(int s = 0;s < alternativePaths; s++) {
-					Boolean assigned = solver.booleanValue(decisionVariables[i][j][s]);
-					assignmentMatrix[i][j][s] = 0;
-					if(assigned){
-						assignmentMatrix[i][j][s] = 1;
-					}
-				}
-			}
-		}
-		return assignmentMatrix;	
+		return currentAssignment;	
 	}
 	
 
@@ -154,9 +125,20 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 			this.feasibleSolutions.add(assignmentMatrix);
 			metaCSPLogger.info(feasibleSolutions.size() + " Solutions found");
 			//Add the constraint to actual solution -> in order to consider this solution as already found  
-    		optimizationProblem = constraintOnPreviousSolution(optimizationProblem,assignmentMatrix);
+					//Initialize a Constraint
+			LinearExprBuilder c2 = LinearExpr.newBuilder();
+			for (int robot = 0; robot < assignmentMatrix.length; robot++) {
+				for (int task = 0; task < assignmentMatrix[0].length; task++) {
+					for(int path = 0; path < assignmentMatrix[0][0].length; path++) {
+						if (assignmentMatrix[robot][task][path] > 0) {
+							c2.addTerm(decisionVariables[robot][task][path],1);
+							
+						}
+					}
+				}
+			}
+			optimizationProblem.addLessOrEqual(c2,assignmentMatrix.length-1);
 	    }
-	    optimizationProblem.clearObjective();
 		//Return the set of all Feasible solutions
 	    return this.feasibleSolutions;
 	    }
@@ -203,6 +185,27 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 			}
 			model.addExactlyOne(robotsCons);
 		}
+
+
+		 //Type Constraint 
+		 for (int robotID : robotsIDs ) {
+			int i = robotsIDs.indexOf(robotID);
+			LinearExprBuilder capabilityConstraint = LinearExpr.newBuilder();
+			for (int taskID : tasksIDs ) {
+				int j = tasksIDs.indexOf(taskID);
+				for(int s = 0; s < alternativePaths; s++) {
+						if (i < realRobotsIDs.size()) { //Considering only real Robot
+							double pss = interferenceFreeCostMatrix[i][j][s];
+							//Type is different or path does not exists
+							if(pss == Double.POSITIVE_INFINITY || !taskQueue.get(j).isCompatible(getRobotType(robotID))) {
+								capabilityConstraint.addTerm(decisionVariables[i][j][s],1);
+							}
+						}
+				}
+				model.addEquality(capabilityConstraint, 0);
+			}
+		}
+
 		return model;
 	}
 
@@ -228,20 +231,14 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 	    //Create the objective function for the problem.
 		LinearExprBuilder objective = LinearExpr.newBuilder();
     	 for (int i = 0; i < numRobotAug; i++) {
-			LinearExprBuilder capabilityConstraint = LinearExpr.newBuilder();
 			 for (int j = 0; j < numTaskAug; j++) {
 				 for(int s = 0; s < alternativePaths; s++) {
 					 double singleRobotCost  =  BFunction[i][j][s];
 					 if ( singleRobotCost != Double.POSITIVE_INFINITY) {
 						 //Set the coefficient of the objective function with the normalized path length
 						 objective.addTerm(decisionVariables[i][j][s], (long)singleRobotCost); 
-					 }else { // if the path does not exists or the robot type is different from the task type 
-						//the path to reach the task not exists
-						//the decision variable is set to 0 -> this allocation is not valid
-						capabilityConstraint.addTerm(decisionVariables[i][j][s],1);
 					 }
 				 }
-				 optimizationProblem.addEquality(capabilityConstraint, 0);
 			 }			 
 		 }
 		//Define the problem as a minimization problem
@@ -274,12 +271,35 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem {
 		return interferenceCostMatrix[robotID][taskID][pathID];
 	}
 
+	public problemStatus solve(){
+		CpSolverStatus resultStatus = solver.solve(model);
+		//Add the constraint to actual solution in order to consider this solution as already found  
+		if(resultStatus == CpSolverStatus.INFEASIBLE){
+			return problemStatus.valueOf(resultStatus.toString());
+		}
+		//Store decision variable values in a Matrix
+		for (int i = 0; i < numRobotAug; i++) {
+			for (int j = 0; j < numTaskAug; j++) {
+				for(int s = 0;s < alternativePaths; s++) {
+					Boolean assigned = solver.booleanValue(decisionVariables[i][j][s]);
+					currentAssignment[i][j][s] = 0;
+					if(assigned){
+						currentAssignment[i][j][s] = 1;
+					}
+				}
+			}
+		}
+		constraintOnPreviousSolution(currentAssignment);
+		return problemStatus.valueOf(resultStatus.toString());
+	}
+
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 		model = createOptimizationProblem();
 		solver = new CpSolver();
+		currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
 		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
-		metaCSPLogger.info("Time required to find the solution: " + optimizationSolver.getcomputationalTime() + " s");
+		metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
 		return this.optimalAssignment;
 	}
 

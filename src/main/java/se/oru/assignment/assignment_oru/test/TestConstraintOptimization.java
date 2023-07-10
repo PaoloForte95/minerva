@@ -8,7 +8,6 @@ import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
 import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
-import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 
 
@@ -37,8 +36,8 @@ public class TestConstraintOptimization {
 		
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		ConstraintOptimizationProblem problem = new ConstraintOptimizationProblem();
-		int numRobots = 6;
-		int numTasks = 6;
+		int numRobots = 3;
+		int numTasks = 3;
 		int numPaths = 1;
 
 		for(int i=0; i < numRobots; i++){

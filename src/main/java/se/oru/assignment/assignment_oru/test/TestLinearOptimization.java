@@ -7,7 +7,6 @@ import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
 import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
-import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 
 @DemoDescription(desc = "Test example for the linear optimization software. Evaluate the computational time to evaluate all the possible solutions for an optimization problem. The problem is solved using an MP solver")
@@ -34,8 +33,8 @@ public class TestLinearOptimization {
 		
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		LinearOptimizationProblem problem = new LinearOptimizationProblem();
-		int numRobots = 6;
-		int numTasks = 6;
+		int numRobots = 3;
+		int numTasks = 3;
 		int numPaths = 1;
 
 		for(int i=0; i < numRobots; i++){

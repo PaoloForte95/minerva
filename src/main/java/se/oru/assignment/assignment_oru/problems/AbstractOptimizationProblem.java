@@ -26,8 +26,47 @@ import se.oru.assignment.assignment_oru.util.StringUtils;
  * @author pofe
  *
  */
-public abstract class AbstractOptimizationProblem{
+public abstract class AbstractOptimizationProblem <T>{
 	
+		  /**
+		 * The status of solving the problem.
+		 */
+		public enum problemStatus {
+			/**
+			 * Optimal Solution
+			 */
+			OPTIMAL,
+			/**
+			 *  Feasible solution.
+			 */
+			FEASIBLE,
+			/**
+			 *  Infeasible problem.
+			 */
+			INFEASIBLE,
+			/**
+			 *  Unbounded problem.
+			 */
+			UNBOUNDED,
+			/**
+			 *  Abnormal problem, i.e., error of some kind.
+			 */
+			ABNORMAL,
+			/**
+			 *  The model is trivially invalid (NaN coefficients, etc).
+			 */
+			MODEL_INVALID,
+			/**
+			 *  problem has not been solved yet.
+			 */
+			NOT_SOLVED,
+			/**The status of the model is still unknown. A search limit has been reached
+   			* before any of the statuses below could be determined.
+   			*/
+			UNKNOWN;
+		}
+
+
 		/**
 		 * Sort the set of tasks task by deadlines
 		 *
@@ -100,6 +139,7 @@ public abstract class AbstractOptimizationProblem{
 		protected double [][][] interferenceCostMatrix;
 
 		//Solutions
+		protected int [][][] currentAssignment;
 		protected int [][][] optimalAssignment;
 		protected List <int [][][]> feasibleSolutions;
 		
@@ -119,6 +159,30 @@ public abstract class AbstractOptimizationProblem{
 		//Callbacks
 		protected TaskAssignmentCallback taskCB = null;
 		protected ComputePathCallback pathCB = null;
+
+		protected T model;
+
+		protected AbstractOptimizationProblem(){
+			alternativePaths = 1;
+			linearWeight = 1;
+			robots = new ArrayList<Robot>();
+			taskQueue = new ArrayList <Task>();
+			taskPosponedQueue = new ArrayList <Task>();	
+			realRobotsIDs = new ArrayList <Integer>();
+			realTasksIDs = new ArrayList <Integer>();
+			robotsIDs = new ArrayList <Integer>(); //this is the set of IDs of all the robots considered into the problem (i.e. both real and virtual robots)
+			tasksIDs = new ArrayList <Integer>(); //this is the set of IDs of all the tasks considered into the problem (i.e. both real and virtual tasks)
+			feasibleSolutions = new ArrayList <int [][][]>();
+		}
+
+		/**
+		 * Get the model of the optimization function (mathematical model).
+		 * @return The model of this optimization problem.
+		 
+		*/
+		public T getModel() {
+			return this.model;
+		}
 
 		/**
 		 * Get the assignment matrix for the current solution
@@ -498,6 +562,9 @@ public abstract class AbstractOptimizationProblem{
 	 */
 	public abstract int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver);
 
+	public abstract problemStatus solve();
+
+	public void constraintOnCostSolution(double cost){}
 
 	/**
 	 * Get the number of feasible solution for this optimization problem.
@@ -534,7 +601,7 @@ public abstract class AbstractOptimizationProblem{
 	 * Print the assignment given as input
 	 * @param assignmentMatrix
 	 */
-	 private void printAssignment(int [][][] assignmentMatrix){
+	 public void printAssignment(int [][][] assignmentMatrix){
 		for (int i = 0; i < assignmentMatrix.length; i++) {
 			int robotID = robotsIDs.get((i));
 			for (int j = 0; j < assignmentMatrix[0].length; j++) {
@@ -554,8 +621,10 @@ public abstract class AbstractOptimizationProblem{
 	 * Print the optimal assignment 
 	 */
 	public void printOptimalAssignment(){
+		metaCSPLogger.info("---------- OPTIMAL SOLUTION ----------");
 		if(optimalAssignment!= null){
 			printAssignment(optimalAssignment);
+			metaCSPLogger.info("--------------------");
 			return ;
 		}
 		throw new Error("Cannot predict the future. Before printing the optimal assignment, compute it!");
