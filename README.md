@@ -32,17 +32,12 @@ This system propose a loosely-coupled framework for integrated task assignment, 
 
 To install the coordination framework, follow the instruction provided <a href="https://github.com/FedericoPecora/coordination_oru.git">here</a>. Note that the branch devel is the one to install. 
 
-To install the navigation framework, follow the instruction provided <a href="https://github.com/OrebroUniversity/navigation_oru-release">here</a>
-
-To install the fleetmaster library, follow the instruction provided <a href="https://gitsvn-nt.oru.se/hkan/fleetmaster.git">here</a>. This one is used to evaluate the delay time to complete a mission related to intereference among robots. After build fleetmaster, copy the shared library libfleetmaster.so into the FleetMasterInterface folder. 
-
-
 To install the assignment framework, clone this repository and compile the source code with gradle (redistributable included):
 
 ```
 $ git clone https://github.com/PaoloForte95/assignment_oru.git
 $ cd assignment_oru
-$ ./gradlew build eclipse
+$ ./gradlew build
 
 ```
 
