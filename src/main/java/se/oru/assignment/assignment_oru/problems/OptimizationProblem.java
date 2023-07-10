@@ -121,7 +121,7 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		public OptimizationProblem(){
 			super();
 			metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
-			eclInterface = instantiateFleetMaster(0.1, false);
+			instantiateFleetMaster(0.1, false);
 			propagateDelays = false;
 			numAllocation = 1;
 		}
@@ -1057,6 +1057,7 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 			realRobotsIDs = coordinator.getIdleRobots();
 			model = createOptimizationProblem();
+			currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
 			this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
 			metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
 			return this.optimalAssignment;

@@ -9,12 +9,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
-import se.oru.assignment.assignment_oru.methods.SimulatedAnnealingAlgorithm;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
 import se.oru.assignment.assignment_oru.problems.OptimizationProblem;
 import se.oru.assignment.assignment_oru.util.BrowserTaskVisualization;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
-import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.CriticalSection;
 import se.oru.coordination.coordination_oru.NetworkConfiguration;
