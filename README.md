@@ -30,7 +30,7 @@ This system propose a loosely-coupled framework for integrated task assignment, 
 
 ## Installation
 
-To install the coordination framework, follow the instruction provided <a href="https://github.com/PaoloForte95/coordination_oru/tree/devel">here</a>. Note that the branch devel is the one to install. 
+To install the coordination framework, follow the instruction provided <a href="https://github.com/FedericoPecora/coordination_oru.git">here</a>. Note that the branch devel is the one to install. 
 
 To install the navigation framework, follow the instruction provided <a href="https://github.com/OrebroUniversity/navigation_oru-release">here</a>
 
