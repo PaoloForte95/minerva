@@ -1,39 +1,31 @@
-# A Framework for Multi-Robot Task Assignment
+# Minerva: A Framework for Multi-Robot Task Assignment
 
-
-
-This software implements an _online task assignment method for multiple robots_. 
+This software implements a loosely-coupled framework for _online task assignment, motion planning, coordination and control of multiple heterogeneous robots_. The approach accounts for the important real-world requirement that tasks can be posted asynchronously. 
 
 
 Its main features are:
 
-* Goals can be posted and paths computed online
-* Precedences are inferred online, accounting for robot dynamics via provided dynamic models
-* Very few assumptions are made on robot controllers
-* The coordination method is not specific to a particular motion planning technique
+* Goals can be posted and paths computed online.
+* The coordination method is not specific to a particular motion planning technique.
 
-The software includes a basic 2D robot simulation and a simple built-in motion planner (which depends on the <a href="http://ompl.kavrakilab.org/">OMPL</a> and <a href="http://www.mrpt.org/">MRPT</a> libraries). A <a href="https://github.com/FedericoPecora/coordination_oru_ros">separate interface package</a> is provided to enable the use of this software in conjunction with <a href="http://www.ros.org/">ROS</a> and the <a href="https://github.com/OrebroUniversity/navigation_oru-release">navigation_oru</a> stack to obtain a fully implemented stack for multi-robot coordination and motion planning.
+The software includes a basic 2D robot simulation and a simple built-in motion planner (which depends on the <a href="http://ompl.kavrakilab.org/">OMPL</a> and <a href="http://www.mrpt.org/">MRPT</a> libraries).
 
-## Overview
-The algorithm provided by this implementation is detailed in
-
-
+# Overview
+The algorithm provided by this implementation is detailed in:
 
 * Paolo Forte, Anna Mannucci, Henrik Andreasson and Federico Pecora, <a href="https://ieeexplore.ieee.org/abstract/document/9387084"> "Online Task Assignment and Coordination in Multi-Robot Fleets </a>," in IEEE Robotics and Automation Letters, vol. 6, no. 3, pp. 4584-4591, July 2021, doi: 10.1109/LRA.2021.3068918.
 
 
-[![Examples usages of the assignment_oru library](https://img.youtube.com/vi/HCi1M1h7TCE/0.jpg)](https://www.youtube.com/watch?v=HCi1M1h7TCE "Examples usages of the assignment_oru library")
+[![Examples usages of minerva](https://img.youtube.com/vi/HCi1M1h7TCE/0.jpg)](https://www.youtube.com/watch?v=HCi1M1h7TCE "Examples usages of minerva")
 
-This system propose a loosely-coupled framework for integrated task assignment, motion planning, coordination and control of heterogeneous fleets of robots subject to non-cooperative tasks. The approach accounts for the important real-world requirement that tasks can be posted asynchronously. The systematic algorithm exploits systematic search for optimal task assignment, where interference is considered as a cost and estimated with knowledge of the kinodynamic models and current state of the robots. Safety is guaranteed by an online coordination algorithm, where the absence of collisions is treated as a hard constraint. The relation between the weight of interference cost in task assignment and computational overhead is analyzed empirically, and the approach is compared against alternative realizations using local search algorithms for task assignment.
+The systematic algorithm exploits systematic search for optimal task assignment, where interference is considered as a cost and estimated with knowledge of the kinodynamic models and current state of the robots. Safety is guaranteed by an online coordination algorithm, where the absence of collisions is treated as a hard constraint.
 
 
+# Installation
 
-## Installation
-
-To install the coordination framework, follow the instruction provided <a href="https://github.com/FedericoPecora/coordination_oru.git">here</a>. Note that the branch devel is the one to install. 
+To install a coordination framework, follow the instruction provided <a href="https://github.com/FedericoPecora/coordination_oru.git">here</a>. 
 
 To install the assignment framework, clone this repository and compile the source code with gradle (redistributable included):
-
 ```
 $ git clone https://github.com/PaoloForte95/assignment_oru.git
 $ cd assignment_oru
@@ -42,19 +34,42 @@ $ ./gradlew build
 ```
 
 
-## Running an example
+# Running an example
 A number of examples are provided. Issue the following command from the source code root directory for instructions on how to run the examples:
 ```
 $ ./gradlew run
 ```
-In the example ```TestTrajectoryEnvelopeCoordinatorThreeRobots```, missions are continuously posted for three robots to reach locations along intersecting paths. The paths are stored in files provided in the ```paths``` directory. The poses of locations and pointers to relevant path files between locations are stored in the self-explanatory ```paths/test_poses_and_path_data.txt``` file.
 
-## Visualizations
+# Optimization Problems
+The API provides two types of optimization problems, implemented using the Google <a href="https://developers.google.com/optimization?hl=en">Ortools</a> library:
+* <a href="https://developers.google.com/optimization/lp?hl=en">Linear Optimization</a>
+* <a href="https://developers.google.com/optimization/cp?hl=en">Constraint Optimization</a>
+
+Both extend the abstract ```AbstractOptimizationProblem``` class, which can be used as a basis to create your own optimization problem. The ```AbstractOptimizationProblem``` class has no dependency on the  Google Ortools library, thus, you can rely on any library to create your own optimization problem.
+
+## Create your own optimization problem
+To create your own optimization problem, the following methods need to be implemented: 
+* ```evaluateBFunction```: define how to evaluate the B(⋅) function. The B(⋅) function reflects user-defined costs, each depending on the single robot state, path, and dynamics. 
+* ```evaluateInterferenceCost```: define how to evaluate the F(⋅) function The F(⋅) function considers the additional cost associated with interference and coordination between the trajectories that robots follow to reach their goals. This cost derives from the imposition of precedences among robots in critical sections. 
+* ```solve```: Get and save the current optimal solution of the optimization problem into the variable ```currentAssignment```.
+
+# Algorithms
+Minerva includes two algorithm to find the optimal solution:
+* ```Systematic Algorithm```.
+* <a href="https://en.wikipedia.org/wiki/Simulated_annealing">Simulated Annealing Algorithm</a>.
+
+
+Both extend the abstract ```AbstractOptimizationAlgorithm``` class, which can be used as a basis to create your own algorithm.
+
+
+
+# Visualizations
 The API provides three visualization methods:
 
 * ```BrowserTaskVisualization```: a browser-based visualization.
 * ```JTSDrawingPanelTaskVisualization```: a Swing-based visualization.
 * ```RVizTaskVisualization```: a visualization based on the ROS visualization tool <a href="http://wiki.ros.org/rviz">RViz</a>.
+
 
 All three visualizations implement the abstract ```TaskFleetVisualization``` class, which can be used as a basis to create your own visualization.
 
@@ -62,7 +77,7 @@ Most examples use the ```BrowserTaskVisualization```. The state of the fleet can
 
 ![BrowserVisualization GUI](images/browser-gui.png "Browser-based visualization")
 
-An arrow between two robots indicates that the source robot will yield to the target robot. Priorities are computed based on a heuristic (which can be provided by the user) and a forward model of robot dynamics (which can also be provided, and is assumed to be conservative - see the <a href="http://iliad-project.eu/wp-content/uploads/papers/PecoraEtAlICAPS2018.pdf">ICAPS 2018 paper</a> mentioned above). The specific poses at which robots yield are also updated online, based on the current positions of robots and the intersecting areas of their trajectory envelopes (critical sections). This makes it possible to achieve "following" behavior, that is, the yielding pose of a robot is updated online while the "leading" robot drives.
+Each task is characterized by a start and goal position. A blue hexagon indicates the task's start position, while a red one indicates the goal position. Each robot will navigate from its current position to the goal location of the task by passing through the start location of the task.
 
 The a Swing-based GUI provided by class ```JTSDrawingPanelVisualization``` looks like this:
 
@@ -77,9 +92,7 @@ The ```RVizVisualization``` visualization publishes <a href="http://wiki.ros.org
 The visualization with least computational overhead is the ```RVizVisualization```, and is recommended for fleets of many robots. The ```BrowserVisualization``` class serves an HTML page with a Javascript which communicates with the coordinator via websockets. Although rendering in this solution is less efficient than in RViz, the rendering occurs on the client platform (where the browser is running), so its computational overhead does not necessarily affect the coordination algorithm. The ```JTSDrawingPanelVisualization``` is rather slow and not recommended for fleets of more than a handful of robots, however it is practical (not requiring to start another process/program for visualization) and relatively well-tested.
 
 
-
-
-## Sponsors
+# Sponsors
 This project is supported by
 
 * The <a href="http://semanticrobots.oru.se">Semantic Robots</a> Research Profile, funded by the <a href="http://www.kks.se/">Swedish Knowledge Foundation</a>
@@ -88,10 +101,10 @@ This project is supported by
 
 * The <a href="https://www.more-itn.eu/">MORE Project</a> Research Profile, funded by the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement. 
 
-## License
-assignment_oru - Robot-agnostic online task assignment for multiple robots
+# License
+minerva - Robot-agnostic online task assignment for multiple robots
 
-Copyright &copy; 2017-2021 Paolo Forte
+Copyright &copy; 2017-2023 Paolo Forte
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
