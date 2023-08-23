@@ -3,9 +3,6 @@ package se.oru.assignment.assignment_oru.methods;
 import java.util.logging.Logger;
 
 import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem;
-import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
-import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
-
 
 /**
  * This class provides a method to compute an optimal task assignment for a fleet of robots and a set of tasks . 
