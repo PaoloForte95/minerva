@@ -103,11 +103,6 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem<MPSol
 		 }
 	}
 
-
-	public int [][][] getAssignmentMatrix(){
-
-		return currentAssignment;	
-	}
 	
 	/**
 	 * Compute all the feasible solutions for this optimization problem.
@@ -272,10 +267,12 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem<MPSol
 						if (i < realRobotsIDs.size()) { //Considering only real Robot
 							double pss = interferenceFreeCostMatrix[i][j][s];
 							//Type is different or path does not exists
-							if(pss == Double.POSITIVE_INFINITY || !taskQueue.get(j).isCompatible(getRobotType(robotID))) {
+							if(realTasksIDs.contains(taskID)){
+								if(pss == Double.POSITIVE_INFINITY || !taskQueue.get(j).isCompatible(getRobotType(robotID))) {
 								MPConstraint c3 = optimizationProblem.makeConstraint(0,0);
 								c3.setCoefficient(decisionVariables[i][j][s],1); 
 							}
+							}				
 						}
 				}
 			}
@@ -332,10 +329,7 @@ public class LinearOptimizationProblem extends AbstractOptimizationProblem<MPSol
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 		model = createOptimizationProblem();
-		currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
-		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
-		metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
-		return this.optimalAssignment;
+		return super.findOptimalAssignment(optimizationSolver);
 	}
 
 	}

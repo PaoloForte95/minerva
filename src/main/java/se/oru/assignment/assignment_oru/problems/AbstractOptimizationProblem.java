@@ -188,8 +188,9 @@ public abstract class AbstractOptimizationProblem <T>{
 		 * Get the assignment matrix for the current solution
 		 * @return
 		 */
-		public abstract int[][][] getAssignmentMatrix();
-
+		public int[][][] getAssignmentMatrix(){
+			return currentAssignment;
+		}
 
 		protected List<Robot> getRobots(){
 			return this.robots;
@@ -560,7 +561,12 @@ public abstract class AbstractOptimizationProblem <T>{
 	 * @param optimizationSolver -> An instance of a {@link AbstractOptimizationAlgorithm}.
 	 * @return The optimal assignment
 	 */
-	public abstract int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver);
+	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
+		currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
+		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
+		metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
+		return this.optimalAssignment;
+	}
 
 	public abstract problemStatus solve();
 
