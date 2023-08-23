@@ -94,13 +94,7 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem<C
 		 }
 		 model.addLessOrEqual(c3,(long) objectiveValue);
 	}
-	
-	
-	public int [][][] getAssignmentMatrix(){
 
-		return currentAssignment;	
-	}
-	
 
 	/**
 	 * Get all the feasible solutions for this optimization problem.
@@ -297,10 +291,7 @@ public class ConstraintOptimizationProblem extends AbstractOptimizationProblem<C
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 		model = createOptimizationProblem();
 		solver = new CpSolver();
-		currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
-		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
-		metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
-		return this.optimalAssignment;
+		return super.findOptimalAssignment(optimizationSolver);
 	}
 
 	}
