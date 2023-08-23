@@ -910,6 +910,7 @@ public final class OptimizationProblem extends LinearOptimizationProblem{
 		public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 			realRobotsIDs = coordinator.getIdleRobots();
 			model = createOptimizationProblem();
+			currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];
 			this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
 			metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
 			return this.optimalAssignment;
