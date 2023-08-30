@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.metacsp.utility.logging.MetaCSPLogging;
 
+import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
@@ -30,9 +31,9 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * @author pofe
  *
  */
-public class ConstraintOptimization extends AbstractOptimizationProblem<CpModel>{
+public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 	 
-	protected CpModel model;
+
 	protected CpSolver solver;
 	protected Literal[][][] decisionVariables;
 	
@@ -41,8 +42,6 @@ public class ConstraintOptimization extends AbstractOptimizationProblem<CpModel>
 		super();
 		Loader.loadNativeLibraries();
 		metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
-		this.model = new CpModel();
-		
 	}
 
 	/**
@@ -104,29 +103,36 @@ public class ConstraintOptimization extends AbstractOptimizationProblem<CpModel>
 	public List <int [][][]> getFeasibleSolutions(){
 		//Define the optimization problem
 		//return this.feasibleSolutions;
-		
+		dummyRobotorTask();
 		CpModel optimizationProblem = buildOptimizationProblem();
+		CpSolver solver = new CpSolver();
 	    CpSolverStatus resultStatus =  solver.solve(optimizationProblem);
 	    while(resultStatus != CpSolverStatus.INFEASIBLE) {
 			//Solve the optimization Problem
     		resultStatus = solver.solve(optimizationProblem);
-			    		
     		if (resultStatus == CpSolverStatus.INFEASIBLE) {
     			break;
     		}
     		//If The solution is feasible increment the number of feasible solution
-    		int [][][] assignmentMatrix = getAssignmentMatrix();
+    		int [][][] assignmentMatrix = new int [numRobotAug][numTaskAug][alternativePaths];	
+			//Store decision variable values in a Matrix
+			for (int i = 0; i < numRobotAug; i++) {
+				for (int j = 0; j < numTaskAug; j++) {
+					for(int s = 0;s < alternativePaths; s++) {
+						assignmentMatrix[i][j][s] = solver.booleanValue(decisionVariables[i][j][s]) ? 1 : 0;
+					}
+				}
+			}
 			this.feasibleSolutions.add(assignmentMatrix);
 			metaCSPLogger.info(feasibleSolutions.size() + " Solutions found");
 			//Add the constraint to actual solution -> in order to consider this solution as already found  
-					//Initialize a Constraint
+			//Initialize a Constraint
 			LinearExprBuilder c2 = LinearExpr.newBuilder();
 			for (int robot = 0; robot < assignmentMatrix.length; robot++) {
 				for (int task = 0; task < assignmentMatrix[0].length; task++) {
 					for(int path = 0; path < assignmentMatrix[0][0].length; path++) {
 						if (assignmentMatrix[robot][task][path] > 0) {
 							c2.addTerm(decisionVariables[robot][task][path],1);
-							
 						}
 					}
 				}
@@ -217,7 +223,6 @@ public class ConstraintOptimization extends AbstractOptimizationProblem<CpModel>
 		initializeRobotsIDs();
 		initializeTasksIDs();
 		double[][][] BFunction = evaluateBFunction();
-		
 		//Build the optimization problem
 		CpModel optimizationProblem = buildOptimizationProblem();
 		
@@ -239,15 +244,6 @@ public class ConstraintOptimization extends AbstractOptimizationProblem<CpModel>
 		optimizationProblem.minimize(objective);
 		//END OBJECTIVE FUNCTION
 		return optimizationProblem;	
-	}
-
-	/**
-	 * Get the model of the optimization function (mathematical model).
-	 * @return The model of this optimization problem.
-	 */
-	
-	public CpModel getModel() {
-		return this.model;
 	}
 
 	/**
@@ -275,11 +271,7 @@ public class ConstraintOptimization extends AbstractOptimizationProblem<CpModel>
 		for (int i = 0; i < numRobotAug; i++) {
 			for (int j = 0; j < numTaskAug; j++) {
 				for(int s = 0;s < alternativePaths; s++) {
-					Boolean assigned = solver.booleanValue(decisionVariables[i][j][s]);
-					currentAssignment[i][j][s] = 0;
-					if(assigned){
-						currentAssignment[i][j][s] = 1;
-					}
+					currentAssignment[i][j][s] = solver.booleanValue(decisionVariables[i][j][s]) ? 1 : 0;
 				}
 			}
 		}
