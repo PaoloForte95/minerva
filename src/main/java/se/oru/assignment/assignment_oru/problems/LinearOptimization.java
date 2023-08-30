@@ -22,7 +22,7 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * @author pofe
  *
  */
-public class LinearOptimization extends AbstractOptimizationProblem<MPSolver> {
+public class LinearOptimization extends AbstractOptimization<MPSolver> {
 	 
 	
 	protected MPVariable[][][] decisionVariables;

@@ -6,8 +6,8 @@ import java.util.Calendar;
 import org.metacsp.utility.logging.MetaCSPLogging;
 
 import aima.core.util.datastructure.Pair;
-import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem;
-import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem.problemStatus;
+import se.oru.assignment.assignment_oru.problems.AbstractOptimization;
+import se.oru.assignment.assignment_oru.problems.AbstractOptimization.problemStatus;
 
 /**
  * This class provide a systematic algorithm to solve an optimization problem defined with the class {@link se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem#buildOptimizationProblem}.
@@ -24,7 +24,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 		logger = MetaCSPLogging.getLogger(this.getClass());
 	}
 
-	protected Pair <Double, Double> computeAssignmentCost(AbstractOptimizationProblem oap){
+	protected Pair <Double, Double> computeAssignmentCost(AbstractOptimization oap){
 		ArrayList<Integer> IDsAllRobots = oap.getRobotsIDs();
 		ArrayList<Integer> IDsAllTasks = oap.getTasksIDs();
 		int maxNumPaths = oap.getmaxNumberOfAlternativePaths();
@@ -90,7 +90,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 
 	 * @return An Optimal Assignment that minimize the objective function
 	 */	
-	public int [][][] solveOptimizationProblem(AbstractOptimizationProblem oap){
+	public int [][][] solveOptimizationProblem(AbstractOptimization oap){
 		logger.info("Solving the problem using the Systematic Algorithm");
 		long initialTime = Calendar.getInstance().getTimeInMillis();
 		ArrayList<Integer> IDsAllRobots = oap.getRobotsIDs();

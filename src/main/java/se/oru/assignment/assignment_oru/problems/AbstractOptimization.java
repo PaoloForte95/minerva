@@ -26,7 +26,7 @@ import se.oru.assignment.assignment_oru.util.StringUtils;
  * @author pofe
  *
  */
-public abstract class AbstractOptimizationProblem <T>{
+public abstract class AbstractOptimization<T>{
 	
 		  /**
 		 * The status of solving the problem.
@@ -162,7 +162,7 @@ public abstract class AbstractOptimizationProblem <T>{
 
 		protected T model;
 
-		protected AbstractOptimizationProblem(){
+		protected AbstractOptimization(){
 			alternativePaths = 1;
 			linearWeight = 1;
 			robots = new ArrayList<Robot>();
@@ -693,18 +693,18 @@ public abstract class AbstractOptimizationProblem <T>{
 
 	
 	private static void printLicense() {
-		System.out.println("\n"+AbstractOptimizationProblem.TITLE);
-		String cpr = AbstractOptimizationProblem.COPYRIGHT;
-		for (String cont : AbstractOptimizationProblem.CONTRIBUTORS) cpr += ", " + cont;
+		System.out.println("\n"+AbstractOptimization.TITLE);
+		String cpr = AbstractOptimization.COPYRIGHT;
+		for (String cont : AbstractOptimization.CONTRIBUTORS) cpr += ", " + cont;
 		List<String> cprJust = StringUtils.fitWidth(cpr, 77, 0);
 		for (String st : cprJust) System.out.println(st);
 		System.out.println();
-		if (AbstractOptimizationProblem.LICENSE != null) {
-			List<String> lic = StringUtils.fitWidth(AbstractOptimizationProblem.PRIVATE_LICENSE, 72, 5);
+		if (AbstractOptimization.LICENSE != null) {
+			List<String> lic = StringUtils.fitWidth(AbstractOptimization.PRIVATE_LICENSE, 72, 5);
 			for (String st : lic) System.out.println(st);
 		}
 		else {
-			List<String> lic = StringUtils.fitWidth(AbstractOptimizationProblem.PUBLIC_LICENSE, 72, 5);
+			List<String> lic = StringUtils.fitWidth(AbstractOptimization.PUBLIC_LICENSE, 72, 5);
 			for (String st : lic) System.out.println(st);
 		}
 		System.out.println();
