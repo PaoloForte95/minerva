@@ -6,7 +6,7 @@ import java.util.Calendar;
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
-import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.ConstraintOptimization;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 
@@ -35,7 +35,7 @@ public class TestConstraintOptimization {
 	public static void main(String[] args) throws InterruptedException {
 		
 		long startTime = Calendar.getInstance().getTimeInMillis();
-		ConstraintOptimizationProblem problem = new ConstraintOptimizationProblem();
+		ConstraintOptimization problem = new ConstraintOptimization();
 		int numRobots = 3;
 		int numTasks = 3;
 		int numPaths = 1;

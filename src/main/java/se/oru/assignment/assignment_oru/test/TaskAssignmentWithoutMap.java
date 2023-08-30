@@ -11,7 +11,7 @@ import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SimulatedAnnealingAlgorithm;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
-import se.oru.assignment.assignment_oru.problems.OptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 import se.oru.assignment.assignment_oru.util.BrowserTaskVisualization;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
@@ -143,17 +143,17 @@ public class TaskAssignmentWithoutMap {
 		//Pose goalPoseRobot4 = new Pose(48.0,27.0,0.0);
 		//Pose goalPoseRobot5 = new Pose(52.0,6.0,0.0);
 
-		Task task1 = new Task(1,startPoseGoal1,goalPoseGoal1,MOBILE_ROBOT.CARLIKE);
-		Task task2 = new Task(2,startPoseGoal2,goalPoseGoal2,MOBILE_ROBOT.CARLIKE);
-		Task task3 = new Task(3,startPoseGoal3,goalPoseGoal3,MOBILE_ROBOT.CARLIKE);
+		Task task1 = new Task(1, startPoseGoal1, goalPoseGoal1, MOBILE_ROBOT.CARLIKE);
+		Task task2 = new Task(2, startPoseGoal2, goalPoseGoal2, MOBILE_ROBOT.CARLIKE);
+		Task task3 = new Task(3, startPoseGoal3, goalPoseGoal3, MOBILE_ROBOT.CARLIKE);
 
-		Task task4 = new Task(4,startPoseGoal4,goalPoseGoal4,MOBILE_ROBOT.CARLIKE);
-		Task task5 = new Task(5,startPoseGoal5,goalPoseGoal5,MOBILE_ROBOT.CARLIKE);
+		Task task4 = new Task(4, startPoseGoal4, goalPoseGoal4, MOBILE_ROBOT.CARLIKE);
+		Task task5 = new Task(5, startPoseGoal5, goalPoseGoal5, MOBILE_ROBOT.CARLIKE);
 		
 		//Task task6 = new Task(6,startPoseGoal6,goalPoseGoal6,1);
 	
 		//TaskAssignmentSimulatedAnnealing assignmentProblem = new TaskAssignmentSimulatedAnnealing();
-		OptimizationProblem assignmentProblem = new OptimizationProblem();
+		LinearOptimizationProblem assignmentProblem = new LinearOptimizationProblem();
 		int numPaths = 1;
 		assignmentProblem.addTask(task1);
 		assignmentProblem.addTask(task2);
@@ -162,9 +162,9 @@ public class TaskAssignmentWithoutMap {
 		assignmentProblem.addTask(task5);
 		//assignmentProblem.addTask(task6);
 		
-		tec.placeRobot(1,startPoseRobot1);
-		tec.placeRobot(2,startPoseRobot2);
-		tec.placeRobot(3,startPoseRobot3);
+		tec.placeRobot(1, startPoseRobot1);
+		tec.placeRobot(2, startPoseRobot2);
+		tec.placeRobot(3, startPoseRobot3);
 		tec.placeRobot(4, startPoseRobot4);
 		tec.placeRobot(5, startPoseRobot5);
 		
@@ -194,7 +194,7 @@ public class TaskAssignmentWithoutMap {
 		
 	    ///////////////////////////////////////////////////////
 		
-		double [][][]optimalAllocation = {{{0.0},{0.0},{1.0},{0.0},{0.0}},
+		double [][][] optimalAllocation = {{{0.0},{0.0},{1.0},{0.0},{0.0}},
 				{{0.0},{0.0},{0.0},{1.0},{0.0}},
 				{{0.0},{1.0},{0.0},{0.0},{0.0}},
 				{{0.0},{0.0},{0.0},{0.0},{1.0}},
