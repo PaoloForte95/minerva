@@ -2,7 +2,7 @@ package se.oru.assignment.assignment_oru.methods;
 
 import java.util.logging.Logger;
 
-import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.AbstractOptimization;
 
 /**
  * This class provides a method to compute an optimal task assignment for a fleet of robots and a set of tasks . 
@@ -61,7 +61,7 @@ public abstract class AbstractOptimizationAlgorithm  {
 	 * @param oap -> An optimization problem defined with {@link #buildOptimizationProblem}
 	 * @return The optimal Assignment
 	 */	
-	public abstract int [][][] solveOptimizationProblem(AbstractOptimizationProblem oap);
+	public abstract int [][][] solveOptimizationProblem(AbstractOptimization oap);
 
 
 }

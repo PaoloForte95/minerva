@@ -7,7 +7,7 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 
 import com.google.ortools.linearsolver.*;
 
-import se.oru.assignment.assignment_oru.problems.AbstractOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.AbstractOptimization;
 
 
 
@@ -26,14 +26,14 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 	
 
 	
-	public int [][][] solveOptimizationProblem(AbstractOptimizationProblem oap){
+	public int [][][] solveOptimizationProblem(AbstractOptimization oap){
 		return solveOptimizationProblem(oap,-1);
 	
 	}
 
 
 
-	public int [][][] solveOptimizationProblem(AbstractOptimizationProblem oap,int iterations){
+	public int [][][] solveOptimizationProblem(AbstractOptimization oap,int iterations){
 		logger.info("Solving the problem using the Simulated Annealing Algorithm");
 		Random rand = new Random(3455343);
 		ArrayList<Integer> IDsAllRobots = oap.getRobotsIDs();
