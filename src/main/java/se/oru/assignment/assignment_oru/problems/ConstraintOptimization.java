@@ -25,19 +25,19 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * 1) Each Task can be assign only to a robot;
  * 2) Each Robot can perform only a task at time;
  * 3) Each robot perform a task following a single path.
- * An instantiatable {@link ConstraintOptimizationProblem} must provide an implementation of the {@link #buildOptimizationProblem()} function to create the optimization problem, and an implementations of
+ * An instantiatable {@link ConstraintOptimization} must provide an implementation of the {@link #buildOptimizationProblem()} function to create the optimization problem, and an implementations of
  * the {@link #evaluateBFunction()} and {@link #evaluateInterferenceCost} methods to evaluate the interference free cost and the interference cost respectively.
  * @author pofe
  *
  */
-public class ConstraintOptimizationProblem extends AbstractOptimizationProblem<CpModel>{
+public class ConstraintOptimization extends AbstractOptimizationProblem<CpModel>{
 	 
 	protected CpModel model;
 	protected CpSolver solver;
 	protected Literal[][][] decisionVariables;
 	
 
-	public ConstraintOptimizationProblem(){
+	public ConstraintOptimization(){
 		super();
 		Loader.loadNativeLibraries();
 		metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());

@@ -5,7 +5,7 @@ import java.util.Calendar;
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
-import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.LinearOptimization;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 
@@ -32,7 +32,7 @@ public class TestLinearOptimization {
 	public static void main(String[] args) throws InterruptedException {
 		
 		long startTime = Calendar.getInstance().getTimeInMillis();
-		LinearOptimizationProblem problem = new LinearOptimizationProblem();
+		LinearOptimization problem = new LinearOptimization();
 		int numRobots = 3;
 		int numTasks = 3;
 		int numPaths = 1;

@@ -18,7 +18,7 @@ import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoord
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
-import se.oru.assignment.assignment_oru.problems.OptimizationProblem;
+import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 import se.oru.assignment.assignment_oru.util.BrowserTaskVisualization;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 
@@ -179,7 +179,7 @@ public class TaskAssignmentWarehouseOnline {
 				
 		
 		
-		OptimizationProblem assignmentProblem = new OptimizationProblem();
+		LinearOptimizationProblem assignmentProblem = new LinearOptimizationProblem();
 		
 		assignmentProblem.setCoordinator(tec);
 
