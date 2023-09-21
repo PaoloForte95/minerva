@@ -78,12 +78,6 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
 		 }
 	}
 
-	/**
-	 * Impose a constraint on the optimization problem on previous optimal solution cost in order to prune all solutions with a cost higher
-	 * than objectiveValue . In this manner is possible to avoid some cases.
-	 * @param assignmentMatrix -> The Assignment Matrix of the actual optimal solution
-	 * @return Optimization Problem updated with the new constraint on optimal solution cost 
-	 */
 	
 	public void constraintOnCostSolution(double objectiveValue) {
 		//Take the vector of Decision Variable from the input solver
@@ -112,7 +106,7 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
 	public List <int [][][]> getFeasibleSolutions(){
 		//Create a new optimization problem
 
-		MPSolver optimizationProblem = buildOptimizationProblem();
+		MPSolver optimizationProblem = initializeOptiVars();
 	
 	    MPSolver.ResultStatus resultStatus = optimizationProblem.solve();
   
@@ -179,7 +173,7 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
 		initializeTasksIDs();
 		double[][][] BFunction = evaluateBFunction();
 		//Build the optimization problem
-		MPSolver optimizationProblem = buildOptimizationProblem();
+		MPSolver optimizationProblem = initializeOptiVars();
 
 		//Modify the coefficients of the objective function
 		MPVariable [][][] decisionVariable = tranformArray(optimizationProblem); 
@@ -214,7 +208,7 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
 	 * 2) Each Robot can perform only a task at time;
 	 * @return A constrained optimization problem without the objective function
 	 */
-	protected MPSolver buildOptimizationProblem() {
+	protected MPSolver initializeOptiVars() {
 		//Initialize a MP linear solver 
 		MPSolver optimizationProblem = new MPSolver("TaskAssignment", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
 		
@@ -301,14 +295,6 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
 		return optimizationProblem;	
 	}
 
-	protected double [][][] evaluateBFunction(){
-		return this.interferenceFreeCostMatrix;
-	}
-
-	public double evaluateInterferenceCost(int robotID ,int taskID,int pathID,int [][][] assignmentMatrix){
-		return interferenceCostMatrix[robotID][taskID][pathID];
-	}
-
 	public problemStatus solve(){
 		MPSolver.ResultStatus resultStatus = model.solve();
 		if(resultStatus == MPSolver.ResultStatus.INFEASIBLE){
@@ -326,6 +312,9 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
 		return problemStatus.valueOf(resultStatus.toString());
 	}
 
+	protected void clear(){
+		model.clear();
+	}
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 		model = createOptimizationProblem();

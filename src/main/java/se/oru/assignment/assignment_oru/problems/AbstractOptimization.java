@@ -96,18 +96,18 @@ public abstract class AbstractOptimization<T>{
 			}
 		}
 	
-		public static String TITLE = "assignment_oru - Robot-agnostic online task assignment for multiple robots";
-		public static String COPYRIGHT = "Copyright \u00a9 2020-" + Calendar.getInstance().get(Calendar.YEAR) + " Paolo Forte";
-		public static String[] CONTRIBUTORS = {"Paolo Forte", "Anna Mannucci", "Federico Pecora"};
+		protected static String TITLE = "minerva - Robot-agnostic online task assignment for multiple robots";
+		protected static String COPYRIGHT = "Copyright \u00a9 2020-" + Calendar.getInstance().get(Calendar.YEAR) + " Paolo Forte";
+		protected static String[] CONTRIBUTORS = {"Paolo Forte", "Anna Mannucci", "Federico Pecora"};
 	
 		//null -> public (GPL3) license
-		public static String LICENSE = null;
+		protected static String LICENSE = null;
 	
-		public static String PUBLIC_LICENSE = "This program comes with ABSOLUTELY NO WARRANTY. "
+		protected static String PUBLIC_LICENSE = "This program comes with ABSOLUTELY NO WARRANTY. "
 				+ "This program is free software: you can redistribute it and/or modify it under the "
 				+ "terms of the GNU General Public License as published by the Free Software Foundation, "
 				+ "either version 3 of the License, or (at your option) any later version. see LICENSE for details.";
-		public static String PRIVATE_LICENSE = "This program comes with ABSOLUTELY NO WARRANTY. "
+		protected static String PRIVATE_LICENSE = "This program comes with ABSOLUTELY NO WARRANTY. "
 				+ "This program has been licensed to " + LICENSE + ". The licensee may "
 				+ "redistribute it under certain conditions; see LICENSE for details.";
 	
@@ -142,10 +142,6 @@ public abstract class AbstractOptimization<T>{
 		protected int [][][] currentAssignment;
 		protected int [][][] optimalAssignment;
 		protected List <int [][][]> feasibleSolutions;
-		
-		//ROADMAP Parameters
-		protected String scenario;
-		protected boolean saveFutureAllocations = false;
 		
 		//Logger 
 		protected Logger metaCSPLogger;	
@@ -214,15 +210,6 @@ public abstract class AbstractOptimization<T>{
 		}
 			
 		/**
-		 * Enable the saving of the scenarios (Missions + paths) for all the optimization problems that will be solved.
-		 * 
-		 */
-		public void saveAllScenarios() {
-			this.saveFutureAllocations = true;
-			
-		}
-
-		/**
 		 * Set the maximum alternative number of paths to reach a goal for each robot.
 		 * @param alternativePaths -> number of path to reach a goal
 		 */
@@ -271,40 +258,6 @@ public abstract class AbstractOptimization<T>{
 		}
 
 		/**
-		 * Specifies anything that should be done when a task is assigned to a robot.
-		 * @param taskCB
-		 */
-		public void setTaskAssignmentCallback(TaskAssignmentCallback taskCB) {
-			this.taskCB = taskCB;
-		}
-
-		/**
-			 * Add a {@link ComputePathCallback} that is triggered whenever a path is computed.
-			 * @param cb The {@link ComputePathCallback} to be called whenever a path is computed.
-			 */
-			public void setComputePathCallback(ComputePathCallback cb) {
-				this.pathCB = cb;
-		}
-		
-		/**
-		 * Load a Scenario (paths + missions) 
-		 * @param scenario ->  Scenario to load
-		 */
-		
-		public void loadScenario(String scenario) {
-			this.scenario = scenario;
-		}
-		
-		/**
-		 * Load an assignment.
-		 * @param assignment ->  Assignment to load 
-		 */
-		
-		public void loadAssignment(int [][][] assignment) {
-			this.optimalAssignment = assignment;
-		}
-
-		/**
 		 * Set the linear weight used in Optimization Problem. This parameter sets the weight (i.e. the importance) of B and F. If alpha = 1 (default value) only the B function is minimized.
 		 * linearWeight must be > 0 and < 1. 
 		 * More this value is close to 0, more is the importance given to F Function. More this value is close to 1, more is the importance given to B function.
@@ -313,7 +266,7 @@ public abstract class AbstractOptimization<T>{
 		
 		public void setLinearWeight(double alpha) {
 			if(alpha < 0 || alpha > 1) {
-				throw new Error("The linear weigth must be > 0 and < 1!");
+				throw new Error("The linear weigth must be >= 0 and <= 1!");
 			}
 			metaCSPLogger.info("alpha is set to : " + alpha);
 			this.linearWeight = alpha;
@@ -328,22 +281,13 @@ public abstract class AbstractOptimization<T>{
 			return this.linearWeight;
 		}	
 		
-		
-	/**
-	 * Set the Fleet Visualization.
-	 * @param viz -> An instance of a TaskFleetVisualization
-	 */
-			
-	public void setFleetVisualization(TaskFleetVisualization viz) {
-		this.viz = viz;
-	}
 
 	/**
 	 * Get the IDs of all the robots considered into the problem (both real and virtual)
 	 * @return a set of all the robots IDs
 	 */
 	
-	 public ArrayList <Integer> getRobotsIDs() {
+	public ArrayList <Integer> getRobotsIDs() {
 		return this.robotsIDs;
 	}
 	
@@ -522,17 +466,7 @@ public abstract class AbstractOptimization<T>{
 	}
 
 	/**
-	 * Evaluate the overall B function, that is the function that consider interference free costs
-	 * Costs considered:
-	 * 1) Path Length
-	 * 2) Tardiness
-	 * Each cost is already normalized;
-	 * @return The interference free cost matrix
-	*/
-	protected abstract double [][][] evaluateBFunction();
-
-	/**
-	 * Get the interference free cost associated to the single robot.
+	 * Get the interference free cost associated to the single robot to execute the task using the given path.
 	 * @param robotID -> ID of the robot
 	 * @param taskID -> ID of the task
 	 * @param path -> index of the path
@@ -546,16 +480,6 @@ public abstract class AbstractOptimization<T>{
 		
 	}
 	
-	/**
-	 * Evaluate the interference cost for the specific robot (robotID) to perform the  specific task (taskID) following the specific path (pathID)
-	 * @param robotID -> ID of the robot that perform the task
-	 * @param taskID -> ID of the task that the robot will perform
-	 * @param pathID -> ID of the path that the robot will follow
-	 * @param assignmentMatrix -> Assignment Matrix (necessary to compute interference with other robots)
-	 */
-	
-	public abstract double evaluateInterferenceCost(int robotID ,int taskID,int pathID,int [][][] assignmentMatrix);
-	
 	/** 
 	 * Find the optimal assignment using the selected algorithm. 
 	 * @param optimizationSolver -> An instance of a {@link AbstractOptimizationAlgorithm}.
@@ -568,16 +492,52 @@ public abstract class AbstractOptimization<T>{
 		return this.optimalAssignment;
 	}
 
+	protected abstract T createOptimizationProblem();
+
 	public abstract problemStatus solve();
 
-	public void constraintOnCostSolution(double cost){}
+	 /**
+	 * Evaluate the overall B function, that is the function that consider interference free costs
+	 * Costs considered:
+	 * 1) Path Length
+	 * 2) Tardiness
+	 * Each cost is already normalized;
+	 * @return The interference free cost matrix
+	*/
+	protected double [][][] evaluateBFunction(){
+		return this.interferenceFreeCostMatrix;
+	}
+
+
+    /**
+	 * Evaluate the interference cost for the specific robot (robotID) to perform the  specific task (taskID) following the specific path (pathID)
+	 * @param robotID -> ID of the robot that perform the task
+	 * @param taskID -> ID of the task that the robot will perform
+	 * @param pathID -> ID of the path that the robot will follow
+	 * @param assignmentMatrix -> Assignment Matrix (necessary to compute interference with other robots)
+	 */
+	
+	public double evaluateInterferenceCost(int robotID ,int taskID,int pathID){
+		return interferenceCostMatrix[robotID][taskID][pathID];
+	}
+
+    /**
+     * Clear the optimization problem.
+     */
+    protected abstract void clear();
+
+    /**
+     * Create a contraint based on the provided cost. Subsequent solutions must have a cost lower than the specified value.
+     * @param cost The maximum allowable cost for generated solutions.
+     */
+    public abstract void constraintOnCostSolution(double cost);
 
 	/**
 	 * Get the number of feasible solution for this optimization problem.
 	 * @return The number of feasible solution 
 	 */
 	
-	 public int numberOfFeasibleSolutions(){	
+	public int numberOfFeasibleSolutions(){	
 		int solutions = 0;
 		int i,fact = 1;  
 		int number = Math.max(numRobotAug, numTaskAug);  
@@ -607,7 +567,7 @@ public abstract class AbstractOptimization<T>{
 	 * Print the assignment given as input
 	 * @param assignmentMatrix
 	 */
-	 public void printAssignment(int [][][] assignmentMatrix){
+	public void printAssignment(int [][][] assignmentMatrix){
 		for (int i = 0; i < assignmentMatrix.length; i++) {
 			int robotID = robotsIDs.get((i));
 			for (int j = 0; j < assignmentMatrix[0].length; j++) {

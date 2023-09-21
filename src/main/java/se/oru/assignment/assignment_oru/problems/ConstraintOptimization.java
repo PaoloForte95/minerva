@@ -8,14 +8,16 @@ import java.util.List;
 
 import org.metacsp.utility.logging.MetaCSPLogging;
 
-import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
+import com.google.ortools.sat.DoubleLinearExpr;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.Loader;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 
@@ -26,7 +28,7 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * 1) Each Task can be assign only to a robot;
  * 2) Each Robot can perform only a task at time;
  * 3) Each robot perform a task following a single path.
- * An instantiatable {@link ConstraintOptimization} must provide an implementation of the {@link #buildOptimizationProblem()} function to create the optimization problem, and an implementations of
+ * An instantiatable {@link ConstraintOptimization} must provide an implementation of the {@link #initializeOptiVars()} function to create the optimization problem, and an implementations of
  * the {@link #evaluateBFunction()} and {@link #evaluateInterferenceCost} methods to evaluate the interference free cost and the interference cost respectively.
  * @author pofe
  *
@@ -46,7 +48,7 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 
 	/**
 	 * Impose a constraint on the optimization problem on previous optimal solution in order to not consider more it
-	 * @param optimizationProblem -> An optimization problem  defined with {@link #buildOptimizationProblem},{@link #buildOptimizationProblemWithB} or {@link #buildOptimizationProblemWithBNormalized} in which a solution is found
+	 * @param optimizationProblem -> An optimization problem  defined with {@link #initializeOptiVars},{@link #initializeOptiVarsWithB} or {@link #initializeOptiVarsWithBNormalized} in which a solution is found
 	 * @param assignmentMatrix -> The Assignment Matrix of the actual optimal solution
 	 * @return Optimization Problem updated with the new constraint on previous optimal solution found  
 	 */
@@ -69,22 +71,17 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 	}
 
 	
-	/**
-	 * Impose a constraint on the optimization problem on previous optimal solution cost in order to prune all solutions with a cost higher
-	 * than objectiveValue . In this manner is possible to avoid some cases.
-	 * @param optimizationProblem -> An optimization problem  defined with {@link #buildOptimizationProblem}
-	 * @param assignmentMatrix -> The Assignment Matrix of the actual optimal solution
-	 * @return Optimization Problem updated with the new constraint on optimal solution cost 
-	 */
-	
+
 	public void constraintOnCostSolution(double objectiveValue) {
 		//Initialize a Constraint
+		/* FIXME this need to be a double to work properly but only long can be used for the contraint
 		LinearExprBuilder c3 = LinearExpr.newBuilder();
 		//Add tolerance
 		objectiveValue = objectiveValue + 0.0005;
 		//Define a constraint for which the next optimal solutions considering only B must have a cost less than objectiveValue
     	for (int robot = 0; robot < numRobotAug; robot++) {
 			for (int task = 0; task < numTaskAug; task++) {
+				DoubleLinearExpr db = new DoubleLinearExpr(decisionVariables[robot][task], interferenceFreeCostMatrix[robot][task], 0.0);
 				for(int path = 0; path < alternativePaths; path++) {
 					long coeff = (long) interferenceFreeCostMatrix[robot][task][path];
 					c3.addTerm(decisionVariables[robot][task][path],coeff);
@@ -92,6 +89,7 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
     		}		
 		 }
 		 model.addLessOrEqual(c3,(long) objectiveValue);
+		 */
 	}
 
 
@@ -104,7 +102,7 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		//Define the optimization problem
 		//return this.feasibleSolutions;
 		dummyRobotorTask();
-		CpModel optimizationProblem = buildOptimizationProblem();
+		CpModel optimizationProblem = initializeOptiVars();
 		CpSolver solver = new CpSolver();
 	    CpSolverStatus resultStatus =  solver.solve(optimizationProblem);
 	    while(resultStatus != CpSolverStatus.INFEASIBLE) {
@@ -148,7 +146,7 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 	 * Build the optimization problem. User need to define a decision variable as a boolean variable and the constraints associated to the problem.
 	 * @return A constrained optimization problem
 	 */
-	protected CpModel buildOptimizationProblem(){
+	protected CpModel initializeOptiVars(){
 		//Declare the CP-SAT model
 		CpModel model = new CpModel();
 
@@ -209,6 +207,49 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		return model;
 	}
 
+
+	/**
+	 * Transform a 3D Matrix  into a 1D array 
+	*/
+	private static Literal[] flatten3DArray(Literal[][][] data) {
+		//Take the vector of Decision Variable from the Optimization Problem
+		int depth = data.length;
+        int rows = data[0].length;
+        int cols = data[0][0].length;
+		Literal [] array1D = new Literal[depth * rows * cols];
+		int index = 0;
+		//Store them in a 2D Matrix
+	    for (int i = 0; i < data.length; i++) {
+			 for (int j = 0; j < data[0].length; j++) {
+				 for (int s = 0; s < data[0][0].length; s++) {
+					array1D[index++] = data[i][j][s];
+				 }
+			 }
+	    }
+		return array1D;
+	}
+
+	/**
+	 * Transform a 3D Matrix  into a 1D array 
+	*/
+	private static double[] flatten3DArray(double[][][] data) {
+		//Take the vector of Decision Variable from the Optimization Problem
+		int depth = data.length;
+        int rows = data[0].length;
+        int cols = data[0][0].length;
+		double [] array1D = new double[depth * rows * cols];
+		int index = 0;
+		//Store them in a 2D Matrix
+	    for (int i = 0; i < data.length; i++) {
+			 for (int j = 0; j < data[0].length; j++) {
+				 for (int s = 0; s < data[0][0].length; s++) {
+					array1D[index++] = data[i][j][s];
+				 }
+			 }
+	    }
+		return array1D;
+	}
+
 	/**
 	 * Create the optimization problem with part of the Objective Function (Function B). Define a decision variable X_ijp_{ijs} as a binary variable in which i indicate
 	 * the robot id, j the tasks, and p_{ijs} is the s-th path for the robot i-th to reach the target position of task j. The problem is build as an ST-ST-IA problem, i.e.:
@@ -224,12 +265,13 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		initializeTasksIDs();
 		double[][][] BFunction = evaluateBFunction();
 		//Build the optimization problem
-		CpModel optimizationProblem = buildOptimizationProblem();
+		CpModel optimizationProblem = initializeOptiVars();
 		
 	    /////////////////////////////////
 	    //Create the objective function for the problem.
-		LinearExprBuilder objective = LinearExpr.newBuilder();
-    	 for (int i = 0; i < numRobotAug; i++) {
+		//LinearExprBuilder objective = LinearExpr.newBuilder();
+		
+    	/*for (int i = 0; i < numRobotAug; i++) {
 			 for (int j = 0; j < numTaskAug; j++) {
 				 for(int s = 0; s < alternativePaths; s++) {
 					 double singleRobotCost  =  BFunction[i][j][s];
@@ -239,9 +281,13 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 					 }
 				 }
 			 }			 
-		 }
+		}
+		*/
+		DoubleLinearExpr db = new DoubleLinearExpr(flatten3DArray(decisionVariables),flatten3DArray(BFunction),0.0 );
+		
 		//Define the problem as a minimization problem
-		optimizationProblem.minimize(objective);
+		optimizationProblem.minimize(db);
+		
 		//END OBJECTIVE FUNCTION
 		return optimizationProblem;	
 	}
@@ -253,13 +299,6 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		return this.solver;
 	}
 
-	protected double [][][] evaluateBFunction(){
-		return this.interferenceFreeCostMatrix;
-	}
-
-	public double evaluateInterferenceCost(int robotID ,int taskID,int pathID,int [][][] assignmentMatrix){
-		return interferenceCostMatrix[robotID][taskID][pathID];
-	}
 
 	public problemStatus solve(){
 		CpSolverStatus resultStatus = solver.solve(model);
@@ -271,7 +310,7 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		for (int i = 0; i < numRobotAug; i++) {
 			for (int j = 0; j < numTaskAug; j++) {
 				for(int s = 0;s < alternativePaths; s++) {
-					currentAssignment[i][j][s] = solver.booleanValue(decisionVariables[i][j][s]) ? 1 : 0;
+					currentAssignment[i][j][s] = solver.booleanValue(decisionVariables[i][j][s]) ? 1 : 0;	
 				}
 			}
 		}
@@ -279,6 +318,9 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		return problemStatus.valueOf(resultStatus.toString());
 	}
 
+	protected void clear(){
+		model.getBuilder().clear();
+	}
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 		model = createOptimizationProblem();

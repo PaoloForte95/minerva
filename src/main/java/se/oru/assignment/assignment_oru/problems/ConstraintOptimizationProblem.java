@@ -14,6 +14,9 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 
 import aima.core.util.datastructure.Pair;
 
+import com.google.ortools.linearsolver.*;
+import com.google.ortools.sat.CpModel;
+import com.google.ortools.sat.CpSolver;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
@@ -47,7 +50,7 @@ import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
 	 * This class used the coordination_oru interface to coordinate the robots while driving.
  * @author pofe
  */
-public final class LinearOptimizationProblem extends LinearOptimization{
+public final class ConstraintOptimizationProblem extends ConstraintOptimization{
 	 
 		//Weights for the Interference free-cost functions
 		private double pathLengthWeight = 1;
@@ -89,35 +92,7 @@ public final class LinearOptimizationProblem extends LinearOptimization{
 		protected String scenario;
 		protected boolean saveFutureAllocations = false;
 
-		/**
-		 * The default footprint used for robots if none is specified.
-		 * NOTE: coordinates in footprints must be given in in CCW or CW order. 
-		*/
-		private static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
-			new Coordinate(-1.0,0.5),
-			new Coordinate(1.0,0.5),
-			new Coordinate(1.0,-0.5),
-			new Coordinate(-1.0,-0.5)
-		};
 
-		//How to compute paths, default mechanism
-		protected ComputePathCallback pathCB = new ComputePathCallback() {
-			@Override
-			public PoseSteering[] computePath(Task task, int pathNumber, RobotReport rr) {
-				AbstractMotionPlanner rsp =  coordinator.getMotionPlanner(rr.getRobotID()).getCopy(true);
-				rsp.setStart(rr.getPose());
-				rsp.setGoals(task.getStartPose(),task.getGoalPose());
-				rsp.setFootprint(coordinator.getFootprint(rr.getRobotID()));
-				
-				if (!rsp.plan()) {
-					System.out.println("Robot" + rr.getRobotID() +" cannot reach the Target End of Task " + task.getID());
-					//the path to reach target end not exits
-					pathsToTargetGoal.put(rr.getRobotID()*numTaskAug*alternativePaths+task.getID()*alternativePaths+pathNumber, null);		
-					return null;
-				}			
-				return rsp.getPath();
-			}
-		};
 
 		/**
 		 * Enable the saving of the scenarios (Missions + paths) for all the optimization problems that will be solved.
@@ -172,11 +147,40 @@ public final class LinearOptimizationProblem extends LinearOptimization{
 			this.viz = viz;
 		}
 
+		/**
+		 * The default footprint used for robots if none is specified.
+		 * NOTE: coordinates in footprints must be given in in CCW or CW order. 
+		*/
+		private static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
+			new Coordinate(-1.0,0.5),
+			new Coordinate(1.0,0.5),
+			new Coordinate(1.0,-0.5),
+			new Coordinate(-1.0,-0.5)
+		};
+
+		//How to compute paths, default mechanism
+		protected ComputePathCallback pathCB = new ComputePathCallback() {
+			@Override
+			public PoseSteering[] computePath(Task task, int pathNumber, RobotReport rr) {
+				AbstractMotionPlanner rsp =  coordinator.getMotionPlanner(rr.getRobotID()).getCopy(true);
+				rsp.setStart(rr.getPose());
+				rsp.setGoals(task.getStartPose(),task.getGoalPose());
+				rsp.setFootprint(coordinator.getFootprint(rr.getRobotID()));
+				
+				if (!rsp.plan()) {
+					System.out.println("Robot" + rr.getRobotID() +" cannot reach the Target End of Task " + task.getID());
+					//the path to reach target end not exits
+					pathsToTargetGoal.put(rr.getRobotID()*numTaskAug*alternativePaths+task.getID()*alternativePaths+pathNumber, null);		
+					return null;
+				}			
+				return rsp.getPath();
+			}
+		};
 
 		/**
 		 *Create an Single Task, Single Robot, Instantaneous Assignment (ST–SR–IA) Multi-Robot Task Assignment(MRTA) problem posed as an Optimal Assignment Problem.
 		 */
-		public LinearOptimizationProblem(){
+		public ConstraintOptimizationProblem(){
 			super();
 			metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
 			instantiateFleetMaster(0.1, false);
@@ -1062,6 +1066,7 @@ public final class LinearOptimizationProblem extends LinearOptimization{
 						for(int path = 0;path < alternativePaths; path++) {
 							BFunction[i][j][path] = pathLengthWeight*PAll[i][j][path]/sumMaxPathsLength + tardinessWeight*tardinessMatrix[i][j][path]/sumTardiness + arrivalTimeWeight*arrivalTimeMatrix[i][j][path]/sumArrivalTime;
 							interferenceFreeCostMatrix[i][j][path] = BFunction[i][j][path];
+
 							//costValuesMatrix[i][j][path] =  PAll[i][j][path]/sumMaxPathsLength+ tardinessMatrix[i][j][path]/sumTardiness + arrivalTimeMatrix[i][j][path]/sumArrivalTime;
 						}
 						
@@ -1073,12 +1078,9 @@ public final class LinearOptimizationProblem extends LinearOptimization{
 					for (int j = 0 ; j < numTaskAug; j++) {
 						for(int path = 0;path < alternativePaths; path++) {
 							BFunction[i][j][path] = pathLengthWeight*PAll[i][j][path]/sumMaxPathsLength+ tardinessWeight*tardinessMatrix[i][j][path]/sumTardiness;
-							//costValuesMatrix[i][j][path] = PAll[i][j][path]/sumMaxPathsLength+ tardinessMatrix[i][j][path]/sumTardiness;
 							interferenceFreeCostMatrix[i][j][path] = BFunction[i][j][path] ;
+							//costValuesMatrix[i][j][path] = PAll[i][j][path]/sumMaxPathsLength+ tardinessMatrix[i][j][path]/sumTardiness;
 						}
-						
-
-		
 					}
 				}
 			}
@@ -1091,6 +1093,7 @@ public final class LinearOptimizationProblem extends LinearOptimization{
 			realRobotsIDs = coordinator.getIdleRobots();
 			checkOnBlocking();
 			model = createOptimizationProblem();
+			solver = new CpSolver();
 			currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
 			this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
 			metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
@@ -1131,7 +1134,7 @@ public final class LinearOptimizationProblem extends LinearOptimization{
 							printOptimalAssignment();
 							allocateTaskstoRobots(assignmentMatrix);
 							System.out.print("Task to be completed "+ taskQueue.size());
-							clear();
+							model.getBuilder().clear();
 							if(taskPosponedQueue.size() !=0) {
 								taskQueue.addAll(taskPosponedQueue);
 								taskPosponedQueue.removeAll(taskPosponedQueue);
