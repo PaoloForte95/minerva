@@ -53,40 +53,40 @@ import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
 public class ConstraintOptimizationProblem extends ConstraintOptimization{
 	 
 		//Weights for the Interference free-cost functions
-		private double pathLengthWeight = 1;
-		private double arrivalTimeWeight = 0;
-		private double tardinessWeight = 0;
+		protected double pathLengthWeight = 1;
+		protected double arrivalTimeWeight = 0;
+		protected double tardinessWeight = 0;
 		
 		//Normalizing factors
-		private double sumTardiness = 1;
-		private double sumMaxPathsLength = 1; //This normalizing factor is obtained by summing the longest paths for each idle robot in the fleet
-		private double sumArrivalTime = 1; //This normalizing factor is the sum of arrival time of completing the longest path  for each robot
+		protected double sumTardiness = 1;
+		protected double sumMaxPathsLength = 1; //This normalizing factor is obtained by summing the longest paths for each idle robot in the fleet
+		protected double sumArrivalTime = 1; //This normalizing factor is the sum of arrival time of completing the longest path  for each robot
 		
-		private double slowestRobotVelocity;
-		private double slowestRobotAcceleration;
+		protected double slowestRobotVelocity;
+		protected double slowestRobotAcceleration;
 		
 		//Parameters for time analysis
-		private long timeRequiretoEvaluatePaths;
-		private long timeRequiretofillInPall;
-		private long timeRequiretoComputeCriticalSection;
-		private long timeRequiretoComputePathsDelay;
+		protected long timeRequiretoEvaluatePaths;
+		protected long timeRequiretofillInPall;
+		protected long timeRequiretoComputeCriticalSection;
+		protected long timeRequiretoComputePathsDelay;
 
-		private int numAllocation;
+		protected int numAllocation;
 
 		//Paths 
-		private HashMap<Integer, PoseSteering[]> pathsToTargetGoal =  new HashMap<Integer, PoseSteering[]>();
-		private ArrayList <SpatialEnvelope> pathsDrivingRobots = new ArrayList <SpatialEnvelope>();
+		protected HashMap<Integer, PoseSteering[]> pathsToTargetGoal =  new HashMap<Integer, PoseSteering[]>();
+		protected ArrayList <SpatialEnvelope> pathsDrivingRobots = new ArrayList <SpatialEnvelope>();
 		
 		//FleetMaster Interface Parameters	
-		private AbstractFleetMasterInterface eclInterface;
-		private boolean propagateDelays;
+		protected AbstractFleetMasterInterface eclInterface;
+		protected boolean propagateDelays;
 
 		//Coordinator
-		private AbstractTrajectoryEnvelopeCoordinator coordinator;
+		protected AbstractTrajectoryEnvelopeCoordinator coordinator;
 
 		//Thread Parameters 
 		protected int CONTROL_PERIOD_TASK = 20000;
-		public static int EFFECTIVE_CONTROL_PERIOD_TASK = 0;
+		protected static int EFFECTIVE_CONTROL_PERIOD_TASK = 0;
 
 		//ROADMAP Parameters
 		protected String scenario;
