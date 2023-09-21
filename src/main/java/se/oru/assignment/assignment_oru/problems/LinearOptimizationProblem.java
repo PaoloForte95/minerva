@@ -47,7 +47,7 @@ import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
 	 * This class used the coordination_oru interface to coordinate the robots while driving.
  * @author pofe
  */
-public final class LinearOptimizationProblem extends LinearOptimization{
+public class LinearOptimizationProblem extends LinearOptimization{
 	 
 		//Weights for the Interference free-cost functions
 		private double pathLengthWeight = 1;
