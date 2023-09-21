@@ -36,8 +36,8 @@ public class TestConstraintOptimization {
 		
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		ConstraintOptimization problem = new ConstraintOptimization();
-		int numRobots = 3;
-		int numTasks = 3;
+		int numRobots = 6;
+		int numTasks = 6;
 		int numPaths = 1;
 
 		for(int i=0; i < numRobots; i++){
@@ -56,7 +56,7 @@ public class TestConstraintOptimization {
 		problem.setInterferenceFreeCostMatrix(costs);
 
 		SystematicAlgorithm alg = new SystematicAlgorithm();
-		problem.findOptimalAssignment(alg);
+		//problem.findOptimalAssignment(alg);
 		
 		//problem.printOptimalAssignment();
 		problem.getFeasibleSolutions();
