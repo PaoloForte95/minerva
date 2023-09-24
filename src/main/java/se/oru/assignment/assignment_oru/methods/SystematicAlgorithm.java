@@ -132,7 +132,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 
 		long timeFinal = Calendar.getInstance().getTimeInMillis();
 		computationalTime = (timeFinal- initialTime)/1000;
-		logger.info("Number of solution evaluated: " + solutionsEvaluated + " in " + computationalTime + " seconds");
+		logger.info("Number of solution evaluated: " + solutionsEvaluated + " in " + computationalTime + " seconds.");
 		//Return the Optimal Assignment Matrix 
 		return  optimalAssignmentMatrix;    
 	}

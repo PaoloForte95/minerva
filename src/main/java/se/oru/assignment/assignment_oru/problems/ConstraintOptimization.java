@@ -16,8 +16,6 @@ import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.DoubleLinearExpr;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.Loader;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
 
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 
@@ -299,7 +297,7 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		return this.solver;
 	}
 
-
+	@Override
 	public problemStatus solve(){
 		CpSolverStatus resultStatus = solver.solve(model);
 		//Add the constraint to actual solution in order to consider this solution as already found  
@@ -318,6 +316,7 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		return problemStatus.valueOf(resultStatus.toString());
 	}
 
+	@Override
 	protected void clear(){
 		model.getBuilder().clear();
 	}
@@ -327,6 +326,5 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		solver = new CpSolver();
 		return super.findOptimalAssignment(optimizationSolver);
 	}
-
 	}
 
