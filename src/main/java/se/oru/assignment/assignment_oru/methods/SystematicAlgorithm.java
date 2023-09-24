@@ -46,7 +46,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 							//double costB = optimizationModel.objective().getCoefficient(optimizationModel.variables()[i*numTaskAug*maxNumPaths+j*maxNumPaths+s]);
 							double costB = oap.getRobotSingleCost(robotID,taskID,s);
 							//fileStream11.println(" ");
-							costF = oap.evaluateInterferenceCost(robotID,taskID,s,oap.getAssignmentMatrix());
+							costF = oap.evaluateInterferenceCost(robotID,taskID,s);
 							costofAssignment = linearWeight*costB + (1-linearWeight)*costF + costofAssignment ;
 							costofAssignmentForConstraint = costValuesMatrix[i][j][s] + costF + costofAssignmentForConstraint;
 						}
@@ -132,7 +132,7 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 
 		long timeFinal = Calendar.getInstance().getTimeInMillis();
 		computationalTime = (timeFinal- initialTime)/1000;
-		logger.info("Number of solution evaluated: " + solutionsEvaluated);
+		logger.info("Number of solution evaluated: " + solutionsEvaluated + " in " + computationalTime + " seconds.");
 		//Return the Optimal Assignment Matrix 
 		return  optimalAssignmentMatrix;    
 	}

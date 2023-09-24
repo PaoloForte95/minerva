@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.SystematicAlgorithm;
+import se.oru.assignment.assignment_oru.problems.ConstraintOptimizationProblem;
 import se.oru.assignment.assignment_oru.problems.LinearOptimizationProblem;
 import se.oru.assignment.assignment_oru.util.BrowserTaskVisualization;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
@@ -28,7 +29,7 @@ import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoord
 
 
 @DemoDescription(desc = "Minimal example of multi robot task assignment with an empty map; 5 robots and 5 tasks")
-public class TaskAssignmentWithoutMap {
+public class TaskAssignmentWithoutMap2 {
 	//load library used for optimization (or tools)
 	 static {
 		    Loader.loadNativeLibraries();
@@ -151,7 +152,7 @@ public class TaskAssignmentWithoutMap {
 		//Task task6 = new Task(6,startPoseGoal6,goalPoseGoal6,1);
 	
 		//TaskAssignmentSimulatedAnnealing assignmentProblem = new TaskAssignmentSimulatedAnnealing();
-		LinearOptimizationProblem assignmentProblem = new LinearOptimizationProblem();
+		ConstraintOptimizationProblem assignmentProblem = new ConstraintOptimizationProblem();
 		int numPaths = 1;
 		assignmentProblem.addTask(task1);
 		assignmentProblem.addTask(task2);

@@ -206,7 +206,7 @@ public class SimulatedAnnealingAlgorithm extends AbstractOptimizationAlgorithm {
 								if (linearWeight != 1) {
 									//Evaluate cost of F function only if alpha is not equal to 1
 									double costB = oap.getRobotSingleCost(robotID,taskID,s);
-									costF = oap.evaluateInterferenceCost(robotID,taskID,s,AssignmentMatrix);
+									costF = oap.evaluateInterferenceCost(robotID,taskID,s);
 									costofAssignment = linearWeight*costB + (1-linearWeight)*costF + costofAssignment ;
 									costofAssignmentForConstraint = costValuesMatrix[i][j][s] + costF + costofAssignmentForConstraint;							
 								}
