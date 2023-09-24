@@ -38,6 +38,7 @@ public abstract class AbstractFleetMasterInterface {
 	//protected VehicleModelParam vehicleParam = null;
 	protected PointerByReference p = null;
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(FleetMasterInterface.class);
+	protected int type;
 	
 	/**
 	 * The default footprint used for robots if none is specified.
@@ -156,6 +157,22 @@ public abstract class AbstractFleetMasterInterface {
 		INSTANCE.setVehicleType(p, robotID, robotType);
 	}
 
+	public void setType(VehicleModel2d.VehicleModel2dType type){
+		switch(type){
+			case Articulated:
+				this.type = 1;
+				break;
+			case CarLike:
+				this.type = 2;
+				break;
+			case Omni4sd:
+				this.type = 3;
+				break;
+			default:
+				throw new Error("Type not supported!");
+		}
+	}
+
 
 	public Pair<Double,Double> computeTimeDelayWPath(PoseSteering[] path1, double[] curvs1, PoseSteering[] path2, double[] curvs2, int robotID1, int robotID2 ){
 		PathPose[] pi1 = (PathPose[])new PathPose().toArray(path1.length);
@@ -238,14 +255,14 @@ public abstract class AbstractFleetMasterInterface {
 
 	}
     
-	public Pair<PoseSteering[], double[]> calculatePath(int robotID, Pose start, ArrayList<Pose> goals, double distanceBetweenPathPoints ){
+	public Pair<PoseSteering[], double[]> calculatePath(Pose start, ArrayList<Pose> goals, double distanceBetweenPathPoints ){
 
 		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
 		ArrayList<Double> finalCurvatures = new ArrayList<Double>();  
 		for (int i = 0; i < goals.size(); i++) {
 			Pose goal = goals.get(i);
 			if (i > 0) start = goals.get(i-1);
-			Pair<PoseSteering[], double[]> p =  calculatePath(robotID, start, goal, distanceBetweenPathPoints);
+			Pair<PoseSteering[], double[]> p =  calculatePath(start, goal, distanceBetweenPathPoints);
 			PoseSteering[] pathPoses = p.getFirst();
 			double[] curvatures = p.getSecond();
 
@@ -265,7 +282,7 @@ public abstract class AbstractFleetMasterInterface {
 		return new Pair<PoseSteering[], double[]>(path, curvatures);
 	}
     
-	public  Pair<PoseSteering[], double[]> calculatePath(int robotID, Pose start, Pose goal, double distanceBetweenPathPoints ){
+	public  Pair<PoseSteering[], double[]> calculatePath(Pose start, Pose goal, double distanceBetweenPathPoints){
 		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
 		PointerByReference pathi = new PointerByReference();
 		PointerByReference curvsi = new PointerByReference();
@@ -278,7 +295,7 @@ public abstract class AbstractFleetMasterInterface {
 		pg.x = goal.getX();
 		pg.y = goal.getY();
 		pg.theta = goal.getTheta();
-		INSTANCE.calculatePath(p, robotID, ps, pg, pathi,curvsi, path_length,distanceBetweenPathPoints);
+		INSTANCE.calculatePath(p, this.type, ps, pg, pathi,curvsi, path_length,distanceBetweenPathPoints);
 		metaCSPLogger.info("Path Length: " + path_length.getValue());	
 		//Get the Path points
 		final Pointer pathVals = pathi.getValue();

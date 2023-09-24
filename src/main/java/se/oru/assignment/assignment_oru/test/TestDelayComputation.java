@@ -8,6 +8,7 @@ import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import aima.core.util.datastructure.Pair;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
+import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterfaceLib.VehicleModel2d;
 
 
 
@@ -45,9 +46,9 @@ public class TestDelayComputation {
 		ArrayList<Pose> goals2 = new ArrayList<Pose>();
 		goals2.add(startPoseGoal2);
 		goals2.add(goalPoseGoal2);
-
-		Pair<PoseSteering[], double[]> path1 = fleetMasterInterface.calculatePath(robotID1, startPoseRobot1, goals1, 0.3);
-        Pair<PoseSteering[], double[]> path2 = fleetMasterInterface.calculatePath(robotID2, startPoseRobot2, goals2, 0.3);
+		fleetMasterInterface.setType(VehicleModel2d.VehicleModel2dType.Articulated);
+		Pair<PoseSteering[], double[]> path1 = fleetMasterInterface.calculatePath(startPoseRobot1, goals1, 0.3);
+        Pair<PoseSteering[], double[]> path2 = fleetMasterInterface.calculatePath(startPoseRobot2, goals2, 0.3);
         fleetMasterInterface.computeTimeDelayWPath(path1.getFirst(), path1.getSecond(), path2.getFirst(), path2.getSecond(), robotID1, robotID2);
 		fleetMasterInterface.computeTimeDelay(path1.getFirst()[0].getPose(), goals1, path2.getFirst()[0].getPose(), goals2, robotID1, robotID2);
 

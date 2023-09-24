@@ -42,7 +42,7 @@ public interface FleetMasterInterfaceLib extends Library {
     
 	void computeTimeDelay(PointerByReference p, PathPose start1, PathPose[] goals1, int numgoals1, PathPose start2, PathPose[] goals2, int numgoals2, int robotID1, int robotID2, DoubleByReference delay1, DoubleByReference delay2 );
 	
-	void calculatePath(PointerByReference p, int robotID, PathPose start, PathPose goal, PointerByReference path, PointerByReference curvatures, IntByReference pathLength, double distanceBetweenPathPoints);
+	void calculatePath(PointerByReference p, int type, PathPose start, PathPose goal, PointerByReference path, PointerByReference curvatures, IntByReference pathLength, double distanceBetweenPathPoints);
 
 	public void cleanupPath(Pointer p, Pointer c);
     
