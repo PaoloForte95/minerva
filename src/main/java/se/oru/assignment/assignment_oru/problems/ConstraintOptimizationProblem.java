@@ -33,6 +33,7 @@ import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.TaskAssignmentCallback;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
+import se.oru.assignment.assignment_oru.fleetmasterinterface.EclDelayEvaluator;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
@@ -188,6 +189,7 @@ public class ConstraintOptimizationProblem extends ConstraintOptimization{
 			numAllocation = 1;
 		}
 
+
 		@Override
 		public boolean addRobot(Robot robot) {
 			int robotID = robot.getRobotID();
@@ -240,6 +242,7 @@ public class ConstraintOptimizationProblem extends ConstraintOptimization{
 			this.eclInterface = new FleetMasterInterface(origin_x, origin_y, origin_theta, resolution, width, height, dynamic_size, debug);
 			this.eclInterface.setDefaultFootprint(DEFAULT_FOOTPRINT);
 			this.propagateDelays = propagateDelays;
+			evaluator = new EclDelayEvaluator(this.eclInterface);
 		}
 		
 		/**
@@ -257,7 +260,8 @@ public class ConstraintOptimizationProblem extends ConstraintOptimization{
 
 		protected Pair<Double,Double> estimateTimeToCompletionDelays(int robot1ID,PoseSteering[] pss1, int robot2ID,PoseSteering[] pss2){
 			if (this.eclInterface != null){
-				return eclInterface.computeTimeDelayWPath(pss1, pss2, robot1ID, robot2ID);
+				//return eclInterface.computeTimeDelayWPath(pss1, pss2, robot1ID, robot2ID);
+				return evaluator.evaluatePathDelay(robot1ID,pss1,robot2ID,pss2);
 			}
 			return new Pair<Double, Double> (Double.NaN, Double.NaN);
 		}

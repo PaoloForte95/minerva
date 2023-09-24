@@ -148,6 +148,9 @@ public abstract class AbstractOptimization<T>{
 
 		//Solver
 		protected AbstractOptimizationAlgorithm optimizationSolver;
+
+		//Delay Evaluator
+		protected AbstractDelayEvaluator evaluator;
 		
 		//Visualization parameters
 		protected TaskFleetVisualization viz = null;
@@ -490,6 +493,10 @@ public abstract class AbstractOptimization<T>{
 		this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
 		metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
 		return this.optimalAssignment;
+	}
+
+	public void setDelayEvaluator(AbstractDelayEvaluator evaluator){
+		this.evaluator = evaluator;
 	}
 
 	protected abstract T createOptimizationProblem();
