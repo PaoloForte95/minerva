@@ -29,11 +29,11 @@ import se.oru.assignment.assignment_oru.IndexedDelay;
 import se.oru.assignment.assignment_oru.Robot;
 import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.TaskAssignmentCallback;
+import se.oru.assignment.assignment_oru.delay.EclDelayEvaluator;
+import se.oru.assignment.assignment_oru.delay.SimpleDelayEvaluator;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMasterInterface;
-import se.oru.assignment.assignment_oru.fleetmasterinterface.EclDelayEvaluator;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
-import se.oru.assignment.assignment_oru.methods.SimpleDelayEvaluator;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
 
