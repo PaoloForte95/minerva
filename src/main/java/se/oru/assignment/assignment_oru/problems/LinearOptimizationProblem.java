@@ -14,8 +14,6 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 
 import aima.core.util.datastructure.Pair;
 
-import aima.core.util.datastructure.Pair;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
@@ -35,6 +33,7 @@ import se.oru.assignment.assignment_oru.fleetmasterinterface.AbstractFleetMaster
 import se.oru.assignment.assignment_oru.fleetmasterinterface.EclDelayEvaluator;
 import se.oru.assignment.assignment_oru.fleetmasterinterface.FleetMasterInterface;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
+import se.oru.assignment.assignment_oru.methods.SimpleDelayEvaluator;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
 
@@ -180,25 +179,41 @@ public class LinearOptimizationProblem extends LinearOptimization{
 		 *Create an Single Task, Single Robot, Instantaneous Assignment (ST–SR–IA) Multi-Robot Task Assignment(MRTA) problem posed as an Optimal Assignment Problem.
 		 */
 		public LinearOptimizationProblem(){
+			this(false);
+		}
+
+
+		/**
+		 *Create an Single Task, Single Robot, Instantaneous Assignment (ST–SR–IA) Multi-Robot Task Assignment(MRTA) problem posed as an Optimal Assignment Problem.
+		 */
+		public LinearOptimizationProblem(boolean instanceFleetMaster){
 			super();
+			if(instanceFleetMaster){
+				instantiateFleetMaster(0.1, false);
+				propagateDelays = false;
+				delayEvaluator = new EclDelayEvaluator(this.eclInterface);
+			}else {
+				delayEvaluator = new SimpleDelayEvaluator();
+			}
 			metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
-			instantiateFleetMaster(0.1, false);
-			propagateDelays = false;
 			numAllocation = 1;
+			
 		}
 
 		@Override
 		public boolean addRobot(Robot robot) {
-			int robotID = robot.getRobotID();
-			eclInterface.setTrajParams(robotID, coordinator.getRobotMaxVelocity(robotID), coordinator.getRobotMaxAcceleration(robotID));
-			if(robot.getType() == MOBILE_ROBOT.ARTICULATED){
-				eclInterface.setRobotType(robotID, 1);
-			}
-			else if(robot.getType() == MOBILE_ROBOT.CARLIKE){
-				eclInterface.setRobotType(robotID, 2);
-			}
-			else {
-				metaCSPLogger.severe(("Other cases are not supported yet. Please select between ARTICULATED and CARLIKE"));
+			if(delayEvaluator instanceof EclDelayEvaluator){
+				int robotID = robot.getRobotID();
+				eclInterface.setTrajParams(robotID, coordinator.getRobotMaxVelocity(robotID), coordinator.getRobotMaxAcceleration(robotID));
+				if(robot.getType() == MOBILE_ROBOT.ARTICULATED){
+					eclInterface.setRobotType(robotID, 1);
+				}
+				else if(robot.getType() == MOBILE_ROBOT.CARLIKE){
+					eclInterface.setRobotType(robotID, 2);
+				}
+				else {
+					metaCSPLogger.severe(("Other cases are not supported yet. Please select between ARTICULATED and CARLIKE"));
+				}
 			}
 			return super.addRobot(robot);
 		}
@@ -239,7 +254,6 @@ public class LinearOptimizationProblem extends LinearOptimization{
 			this.eclInterface = new FleetMasterInterface(origin_x, origin_y, origin_theta, resolution, width, height, dynamic_size, debug);
 			this.eclInterface.setDefaultFootprint(DEFAULT_FOOTPRINT);
 			this.propagateDelays = propagateDelays;
-			evaluator = new EclDelayEvaluator(this.eclInterface);
 		}
 		
 		/**
@@ -256,11 +270,7 @@ public class LinearOptimizationProblem extends LinearOptimization{
 			
 
 		protected Pair<Double,Double> estimateTimeToCompletionDelays(int robot1ID,PoseSteering[] pss1, int robot2ID,PoseSteering[] pss2){
-			if (this.eclInterface != null){
-				return evaluator.evaluatePathDelay(robot1ID,pss1,robot2ID,pss2);
-				//return eclInterface.computeTimeDelayWPath(pss1, pss2, robot1ID, robot2ID);
-			}
-			return new Pair<Double, Double> (Double.NaN, Double.NaN);
+			return delayEvaluator.evaluatePathDelay(robot1ID,pss1,robot2ID,pss2);
 		}
 
 		/**
@@ -1095,11 +1105,7 @@ public class LinearOptimizationProblem extends LinearOptimization{
 		public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 			realRobotsIDs = coordinator.getIdleRobots();
 			checkOnBlocking();
-			model = createOptimizationProblem();
-			currentAssignment = new int [numRobotAug][numTaskAug][alternativePaths];	
-			this.optimalAssignment = optimizationSolver.solveOptimizationProblem(this);
-			metaCSPLogger.info("Time required to find the optimal solution: " + optimizationSolver.getcomputationalTime() + " s");
-			return this.optimalAssignment;
+			return super.findOptimalAssignment(optimizationSolver);
 		}
 
 
@@ -1114,12 +1120,11 @@ public class LinearOptimizationProblem extends LinearOptimization{
 			}
 		};
 		
-		public void startTaskAssignment(AbstractOptimizationAlgorithm optimizationSolver ) {
+		public void startTaskAssignment(AbstractOptimizationAlgorithm optimizationSolver) {
 			//Create meta solver and solver
 			this.optimizationSolver = optimizationSolver;
 			//Start a thread that checks and enforces dependencies at every clock tick
 			this.setupInferenceCallback();
-
 		}
 
 		protected void setupInferenceCallback() {
@@ -1136,7 +1141,6 @@ public class LinearOptimizationProblem extends LinearOptimization{
 							printOptimalAssignment();
 							allocateTaskstoRobots(assignmentMatrix);
 							System.out.print("Task to be completed "+ taskQueue.size());
-							clear();
 							if(taskPosponedQueue.size() !=0) {
 								taskQueue.addAll(taskPosponedQueue);
 								taskPosponedQueue.removeAll(taskPosponedQueue);
