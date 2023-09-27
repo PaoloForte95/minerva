@@ -122,10 +122,10 @@ public final class SystematicAlgorithm extends AbstractOptimizationAlgorithm {
 			if (costofAssignment < currentOptimalCost && resultStatus != problemStatus.INFEASIBLE) {
 				currentOptimalCost = costofAssignment;
 				optimalAssignmentMatrix = copyData(AssignmentMatrix);
-			}
-			//Add the constraint on cost for next solution
-			//add +0,005 in order for tolerance
-			oap.constraintOnCostSolution(costofAssignmentForConstraint);
+				oap.updateCost(costofAssignment, costofAssignmentForConstraint);
+				//Add the constraint on cost for next solution
+				oap.constraintOnCostSolution(costofAssignmentForConstraint);
+			}			
 			//Add the constraint to actual solution in order to consider this solution as already found  
 			computationalTime =  Calendar.getInstance().getTimeInMillis() - initialTime;
 		}

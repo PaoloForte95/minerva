@@ -17,6 +17,7 @@ import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.TaskAssignmentCallback;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 import se.oru.assignment.assignment_oru.util.TaskFleetVisualization;
+import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.assignment.assignment_oru.util.StringUtils;
 
@@ -26,7 +27,7 @@ import se.oru.assignment.assignment_oru.util.StringUtils;
  * @author pofe
  *
  */
-public abstract class AbstractOptimization<T>{
+public abstract class AbstractOptimization{
 	
 		  /**
 		 * The status of solving the problem.
@@ -126,7 +127,7 @@ public abstract class AbstractOptimization<T>{
 		protected int alternativePaths;
 		protected int dummyRobot;
 		protected int dummyTask;
-		protected List <Robot> robots ;
+		protected List <Robot> robots;
 		protected ArrayList <Task> taskQueue;
 		protected ArrayList <Task> taskPosponedQueue;	
 		protected ArrayList <Integer> realRobotsIDs;  //Set of real robots
@@ -140,7 +141,9 @@ public abstract class AbstractOptimization<T>{
 
 		//Solutions
 		protected int [][][] currentAssignment;
+		protected double currentCost;
 		protected int [][][] optimalAssignment;
+		protected double optimalCost= 10000000;
 		protected List <int [][][]> feasibleSolutions;
 		
 		//Logger 
@@ -150,7 +153,7 @@ public abstract class AbstractOptimization<T>{
 		protected AbstractOptimizationAlgorithm optimizationSolver;
 
 		//Delay Evaluator
-		protected AbstractDelayEvaluator evaluator;
+		protected AbstractDelayEvaluator delayEvaluator;
 		
 		//Visualization parameters
 		protected TaskFleetVisualization viz = null;
@@ -159,7 +162,6 @@ public abstract class AbstractOptimization<T>{
 		protected TaskAssignmentCallback taskCB = null;
 		protected ComputePathCallback pathCB = null;
 
-		protected T model;
 
 		protected AbstractOptimization(){
 			alternativePaths = 1;
@@ -175,20 +177,27 @@ public abstract class AbstractOptimization<T>{
 		}
 
 		/**
-		 * Get the model of the optimization function (mathematical model).
-		 * @return The model of this optimization problem.
-		 
-		*/
-		public T getModel() {
-			return this.model;
-		}
-
-		/**
 		 * Get the assignment matrix for the current solution
 		 * @return
 		 */
 		public int[][][] getAssignmentMatrix(){
 			return currentAssignment;
+		}
+
+		public double getCurrentCost(){
+			return this.currentCost;
+		}
+
+		public double getOptimalCost(){
+			return this.optimalCost;
+		}
+
+		public void updateCost(double cost, double ... constraintCost){
+			currentCost = cost;
+			if (optimalCost > currentCost){
+				optimalCost = currentCost;
+
+			}
 		}
 
 		protected List<Robot> getRobots(){
@@ -480,7 +489,6 @@ public abstract class AbstractOptimization<T>{
 		int i = robotsIDs.indexOf(robotID);
 		int j = tasksIDs.indexOf(taskID);
 		return this.interferenceFreeCostMatrix[i][j][path];
-		
 	}
 	
 	/** 
@@ -496,11 +504,10 @@ public abstract class AbstractOptimization<T>{
 	}
 
 	public void setDelayEvaluator(AbstractDelayEvaluator evaluator){
-		this.evaluator = evaluator;
+		this.delayEvaluator = evaluator;
 	}
 
-	protected abstract T createOptimizationProblem();
-
+	//protected abstract T createOptimizationProblem();
 	public abstract problemStatus solve();
 
 	 /**
@@ -511,11 +518,17 @@ public abstract class AbstractOptimization<T>{
 	 * Each cost is already normalized;
 	 * @return The interference free cost matrix
 	*/
-	protected double [][][] evaluateBFunction(){
-		return this.interferenceFreeCostMatrix;
+	protected abstract double [][][] evaluateBFunction();
+
+
+    /**
+     * Create a contraint based on the provided cost. Subsequent solutions must have a cost lower than the specified value.
+     * @param cost The maximum allowable cost for generated solutions.
+     */
+	public void constraintOnCostSolution(double cost){
+
 	}
-
-
+	
     /**
 	 * Evaluate the interference cost for the specific robot (robotID) to perform the  specific task (taskID) following the specific path (pathID)
 	 * @param robotID -> ID of the robot that perform the task
@@ -524,20 +537,7 @@ public abstract class AbstractOptimization<T>{
 	 * @param assignmentMatrix -> Assignment Matrix (necessary to compute interference with other robots)
 	 */
 	
-	public double evaluateInterferenceCost(int robotID ,int taskID,int pathID){
-		return interferenceCostMatrix[robotID][taskID][pathID];
-	}
-
-    /**
-     * Clear the optimization problem.
-     */
-    protected abstract void clear();
-
-    /**
-     * Create a contraint based on the provided cost. Subsequent solutions must have a cost lower than the specified value.
-     * @param cost The maximum allowable cost for generated solutions.
-     */
-    public abstract void constraintOnCostSolution(double cost);
+	public abstract double evaluateInterferenceCost(int robotID ,int taskID,int pathID);
 
 	/**
 	 * Get the number of feasible solution for this optimization problem.

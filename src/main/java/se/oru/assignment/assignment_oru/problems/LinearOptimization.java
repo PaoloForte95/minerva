@@ -1,6 +1,7 @@
 package se.oru.assignment.assignment_oru.problems;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.metacsp.utility.logging.MetaCSPLogging;
@@ -8,6 +9,8 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 import com.google.ortools.linearsolver.*;
 import com.google.ortools.Loader;
 
+import se.oru.assignment.assignment_oru.Robot;
+import se.oru.assignment.assignment_oru.Task;
 import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
 
 
@@ -22,16 +25,16 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * @author pofe
  *
  */
-public class LinearOptimization extends AbstractOptimization<MPSolver> {
+public class LinearOptimization extends AbstractOptimization {
 	 
 	
 	protected MPVariable[][][] decisionVariables;
+	protected MPSolver model;
 
 	public LinearOptimization(){
 		super();
 		Loader.loadNativeLibraries();
 		metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
-
 	}
 
 	/**
@@ -76,6 +79,30 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
     			}
     		}		
 		 }
+	}
+
+	@Override
+	protected double [][][] evaluateBFunction(){
+		return this.interferenceFreeCostMatrix;
+	}
+
+	@Override
+	public double evaluateInterferenceCost(int robotID ,int taskID,int pathID){
+		return interferenceCostMatrix[robotID][taskID][pathID];
+	}
+
+	@Override
+	public void updateCost(double cost, double ... constraintCost){
+		currentCost = cost;
+		if (optimalCost > currentCost){
+			optimalCost = currentCost;
+
+		}
+		if(constraintCost != null){
+			for(double c : constraintCost){
+				constraintOnCostSolution(c);
+			}
+		}
 	}
 
 	
@@ -318,7 +345,9 @@ public class LinearOptimization extends AbstractOptimization<MPSolver> {
 
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 		model = createOptimizationProblem();
-		return super.findOptimalAssignment(optimizationSolver);
+		super.findOptimalAssignment(optimizationSolver);
+		clear();
+		return this.optimalAssignment;
 	}
 
 	}

@@ -31,9 +31,9 @@ import se.oru.assignment.assignment_oru.methods.AbstractOptimizationAlgorithm;
  * @author pofe
  *
  */
-public class ConstraintOptimization extends AbstractOptimization<CpModel>{
+public class ConstraintOptimization extends AbstractOptimization{
 	 
-
+	protected CpModel model;
 	protected CpSolver solver;
 	protected Literal[][][] decisionVariables;
 	
@@ -68,26 +68,14 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
     	//Return the updated Optimization Problem
 	}
 
-	
+	@Override
+	protected double [][][] evaluateBFunction(){
+		return this.interferenceFreeCostMatrix;
+	}
 
-	public void constraintOnCostSolution(double objectiveValue) {
-		//Initialize a Constraint
-		/* FIXME this need to be a double to work properly but only long can be used for the contraint
-		LinearExprBuilder c3 = LinearExpr.newBuilder();
-		//Add tolerance
-		objectiveValue = objectiveValue + 0.0005;
-		//Define a constraint for which the next optimal solutions considering only B must have a cost less than objectiveValue
-    	for (int robot = 0; robot < numRobotAug; robot++) {
-			for (int task = 0; task < numTaskAug; task++) {
-				DoubleLinearExpr db = new DoubleLinearExpr(decisionVariables[robot][task], interferenceFreeCostMatrix[robot][task], 0.0);
-				for(int path = 0; path < alternativePaths; path++) {
-					long coeff = (long) interferenceFreeCostMatrix[robot][task][path];
-					c3.addTerm(decisionVariables[robot][task][path],coeff);
-    			}
-    		}		
-		 }
-		 model.addLessOrEqual(c3,(long) objectiveValue);
-		 */
+	@Override
+	public double evaluateInterferenceCost(int robotID ,int taskID,int pathID){
+		return interferenceCostMatrix[robotID][taskID][pathID];
 	}
 
 
@@ -316,7 +304,6 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 		return problemStatus.valueOf(resultStatus.toString());
 	}
 
-	@Override
 	protected void clear(){
 		model.getBuilder().clear();
 	}
@@ -324,7 +311,9 @@ public class ConstraintOptimization extends AbstractOptimization<CpModel>{
 	public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 		model = createOptimizationProblem();
 		solver = new CpSolver();
-		return super.findOptimalAssignment(optimizationSolver);
+		super.findOptimalAssignment(optimizationSolver);
+		clear();
+		return this.optimalAssignment;
 	}
 	}
 
