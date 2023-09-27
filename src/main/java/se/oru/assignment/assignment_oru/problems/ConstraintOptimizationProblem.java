@@ -73,6 +73,8 @@ public class ConstraintOptimizationProblem extends ConstraintOptimization{
 
 		protected int numAllocation;
 
+		protected boolean checkBlocking;
+
 		//Paths 
 		protected HashMap<Integer, PoseSteering[]> pathsToTargetGoal =  new HashMap<Integer, PoseSteering[]>();
 		protected ArrayList <SpatialEnvelope> pathsDrivingRobots = new ArrayList <SpatialEnvelope>();
@@ -198,6 +200,7 @@ public class ConstraintOptimizationProblem extends ConstraintOptimization{
 			}
 			metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
 			numAllocation = 1;
+			checkBlocking = false;
 			
 		}
 
@@ -1098,11 +1101,17 @@ public class ConstraintOptimizationProblem extends ConstraintOptimization{
 			
 			return BFunction;
 		}
+
+		public void checkforBlocking(){
+			this.checkBlocking = true;
+		}
 		
 
 		public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 			realRobotsIDs = coordinator.getIdleRobots();
-			checkOnBlocking();
+			if(checkBlocking){
+				checkOnBlocking();
+			}
 			return super.findOptimalAssignment(optimizationSolver);
 		}
 

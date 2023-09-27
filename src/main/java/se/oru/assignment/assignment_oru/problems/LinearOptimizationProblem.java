@@ -72,6 +72,8 @@ public class LinearOptimizationProblem extends LinearOptimization{
 
 		protected int numAllocation;
 
+		protected boolean checkBlocking;
+
 		//Paths 
 		protected HashMap<Integer, PoseSteering[]> pathsToTargetGoal =  new HashMap<Integer, PoseSteering[]>();
 		protected ArrayList <SpatialEnvelope> pathsDrivingRobots = new ArrayList <SpatialEnvelope>();
@@ -90,6 +92,8 @@ public class LinearOptimizationProblem extends LinearOptimization{
 		//ROADMAP Parameters
 		protected String scenario;
 		protected boolean saveFutureAllocations = false;
+
+
 
 		/**
 		 * The default footprint used for robots if none is specified.
@@ -197,6 +201,7 @@ public class LinearOptimizationProblem extends LinearOptimization{
 			}
 			metaCSPLogger = MetaCSPLogging.getLogger(this.getClass());
 			numAllocation = 1;
+			checkBlocking = false;
 			
 		}
 
@@ -1100,11 +1105,17 @@ public class LinearOptimizationProblem extends LinearOptimization{
 			
 			return BFunction;
 		}
+
+		public void checkforBlocking(){
+			this.checkBlocking = true;
+		}
 		
 
 		public int [][][] findOptimalAssignment(AbstractOptimizationAlgorithm optimizationSolver){
 			realRobotsIDs = coordinator.getIdleRobots();
-			checkOnBlocking();
+			if(checkBlocking){
+				checkOnBlocking();
+			}
 			return super.findOptimalAssignment(optimizationSolver);
 		}
 
