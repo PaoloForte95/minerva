@@ -1,6 +1,7 @@
 package se.oru.assignment.assignment_oru;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ public class Task {
 	protected double operationTime = 0;
 	protected boolean priority = false;
 	protected int robotRequired = 1;
+	protected HashMap<Integer, Pose> intermediatePoints;
 	
 	/**
 	 * Create a simple task composed by an ID and the robot that can execute it.
@@ -138,6 +140,30 @@ public class Task {
 		if (robotTypes.length == 0) throw new Error("Need to specifiy at least one robot type!");
 		this.robotTypes = new HashSet<ROBOT_TYPE>();
 		for (ROBOT_TYPE rt : robotTypes) this.robotTypes.add(rt);
+		intermediatePoints = new HashMap<Integer,Pose>();
+	}
+
+	public void setIntermediatePoint(int pathID, Pose pose){
+		if(this.intermediatePoints.containsKey(pathID)){
+			this.intermediatePoints.replace(pathID, pose);
+		}
+		this.intermediatePoints.put(pathID, pose);
+	}
+
+	public void setIntermediatePoint(Pose... poses){
+		int index = 0;
+		for(Pose pose : poses){
+			this.intermediatePoints.putIfAbsent(index++, pose);
+		} 
+		
+	}
+
+	public Pose getIntermediatePose(int pathID){
+		if(this.intermediatePoints.containsKey(pathID)){
+			return this.intermediatePoints.get(pathID);
+		}
+		System.out.println("The intermediate Point for the alternative path" + pathID + "not found!");
+		return getStartPose();
 	}
 
 	public List<PoseSteering[]> getPaths() {

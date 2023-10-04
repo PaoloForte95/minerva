@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import java.util.HashMap;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope.SpatialEnvelope;
@@ -640,7 +641,15 @@ public class LinearOptimizationProblem extends LinearOptimization{
 				AbstractMotionPlanner rsp =  coordinator.getMotionPlanner(robotID).getCopy(true);
 				
 				rsp.setStart(rr.getPose());
-				rsp.setGoals(taskQueue.get(taskIndex).getStartPose(),taskQueue.get(taskIndex).getGoalPose());
+				Pose intPose = taskQueue.get(taskIndex).getIntermediatePose(alternativePath);
+				//Default intPose is equal to start Pose
+				if(!taskQueue.get(taskIndex).getStartPose().equals(intPose)){
+					rsp.setGoals(taskQueue.get(taskIndex).getStartPose(),intPose, taskQueue.get(taskIndex).getGoalPose());
+				}
+				else {
+					rsp.setGoals(taskQueue.get(taskIndex).getStartPose(),taskQueue.get(taskIndex).getGoalPose());
+				}
+				
 				rsp.setFootprint(coordinator.getFootprint(robotID));
 				
 				if (!rsp.plan()) {
