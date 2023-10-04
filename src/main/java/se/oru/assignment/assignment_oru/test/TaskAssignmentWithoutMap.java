@@ -152,7 +152,7 @@ public class TaskAssignmentWithoutMap {
 	
 		//TaskAssignmentSimulatedAnnealing assignmentProblem = new TaskAssignmentSimulatedAnnealing();
 		LinearOptimizationProblem assignmentProblem = new LinearOptimizationProblem();
-		int numPaths = 1;
+		int numPaths = 2;
 		assignmentProblem.addTask(task1);
 		assignmentProblem.addTask(task2);
 		assignmentProblem.addTask(task3);

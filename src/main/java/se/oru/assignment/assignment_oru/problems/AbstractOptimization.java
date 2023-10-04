@@ -227,6 +227,8 @@ public abstract class AbstractOptimization{
 		 */
 		public void setmaxNumberOfAlternativePaths(int alternativePaths) {
 			this.alternativePaths = alternativePaths;
+			virtualRobotID = virtualRobotID/alternativePaths;
+			virtualTaskID = virtualTaskID/alternativePaths;
 		}
 	
 		
