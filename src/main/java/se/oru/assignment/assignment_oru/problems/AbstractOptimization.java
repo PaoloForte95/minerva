@@ -116,8 +116,8 @@ public abstract class AbstractOptimization{
 		static { printLicense(); }
 
 		//Fixed Value
-		protected int virtualRobotID = Integer.MAX_VALUE; 
-		protected int virtualTaskID = Integer.MAX_VALUE;
+		protected int virtualRobotID = Integer.MAX_VALUE/2; 
+		protected int virtualTaskID = Integer.MAX_VALUE/2;
 	
 		//Optimization Problem Parameters
 		//protected int numberRobots;

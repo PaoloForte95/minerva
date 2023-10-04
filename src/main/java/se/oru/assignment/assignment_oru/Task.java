@@ -162,7 +162,7 @@ public class Task {
 		if(this.intermediatePoints.containsKey(pathID)){
 			return this.intermediatePoints.get(pathID);
 		}
-		System.out.println("The intermediate Point for the alternative path" + pathID + "not found!");
+		System.out.println("The intermediate Point for the alternative path " + pathID + "not found!");
 		return getStartPose();
 	}
 

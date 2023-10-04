@@ -665,7 +665,7 @@ public class LinearOptimizationProblem extends LinearOptimization{
 				//Take the Pose Steering representing the path
 				PoseSteering[] pss = rsp.getPath();
 				
-				System.out.println("Robot " +robotID +" taskID "+ taskID +" throw Path " + pss[pss.length-1].getX() + " " + pss[pss.length-1].getY() + " " + pss[pss.length-1].getTheta());
+				System.out.println("Robot " +robotID +" taskID "+ taskID +" throw Path " + alternativePath);
 				
 				
 				//Add the path to the FleetMaster Interface -> this is necessary for F function
@@ -699,7 +699,7 @@ public class LinearOptimizationProblem extends LinearOptimization{
 					//Add the path to the FleetMaster Interface -> so it can be considered as an obstacle from 
 					//the motion planner
 					
-					System.out.println("Robot " +robotID +" taskID "+ taskID +" throw Path " + dummyTask[dummyTask.length-1].getX() + " " + dummyTask[dummyTask.length-1].getY() + " " + dummyTask[dummyTask.length-1].getTheta());
+					System.out.println("Robot " +robotID +" taskID "+ taskID +" throw Path " + alternativePath);
 					
 					//addPath(robotID, dummyTask.hashCode(), dummyTask, null, coordinator.getFootprint(robotID));
 					//Save the path to Dummy Task 
