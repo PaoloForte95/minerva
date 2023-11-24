@@ -105,6 +105,8 @@ public class Robot {
 	 }
 	 
 	 public void setKinematicModel(double vel, double acc) {
+		this.vel = vel;
+		this.acc = acc;
 		this.fm = new ConstantAccelerationForwardModel(acc, vel, 1000.0, 1000, 30);
 	 }
 
