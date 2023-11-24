@@ -2,6 +2,7 @@ package se.oru.assignment.assignment_oru;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import aima.core.util.datastructure.Pair;
 import se.oru.assignment.assignment_oru.util.RobotsType.MOBILE_ROBOT;
 import se.oru.assignment.assignment_oru.util.RobotsType.ROBOT_TYPE;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
@@ -99,12 +100,12 @@ public class Robot {
 		 this.footprint= footprint;;
 	 }
 	 
-	 public  ForwardModel getForwardModel() {
-		 return this.fm;
+	 public  Pair<Double,Double> getKinematicModel() {
+		 return new Pair<Double,Double>(vel,acc);
 	 }
 	 
-	 public void setForwardModel(ForwardModel fm) {
-		 this.fm= fm;
+	 public void setKinematicModel(double vel, double acc) {
+		this.fm = new ConstantAccelerationForwardModel(acc, vel, 1000.0, 1000, 30);
 	 }
 
 	 public void setCapacity(double capacity){
